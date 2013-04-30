@@ -1,7 +1,5 @@
 package ngsanalyser.ngsdata;
 
-import ngsanalyser.ngsdata.exception.NGSFileException;
-
 public enum NGSFileType {
     FASTQ_SANGER,
     FASTQ_SOLEXA,

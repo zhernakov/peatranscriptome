@@ -1,11 +1,9 @@
 package ngsanalyser.ngsdata;
 
-import ngsanalyser.ngsdata.exception.NGSFileException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import ngsanalyser.ngsdata.exception.NGSFileNotFoundException;
-import ngsanalyser.ngsdata.exception.NGSFileUndefinedTypeException;
+import org.biojava3.sequencing.io.fastq.Fastq;
 
 abstract public class NGSFile {
     public static NGSFile NGSFileFactory(String filepath, NGSFileType type) throws NGSFileException {
@@ -32,4 +30,6 @@ abstract public class NGSFile {
         }
     }
 
+    abstract public boolean hasNext();
+    abstract public Fastq next();
 }

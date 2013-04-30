@@ -3,7 +3,7 @@ package ngsanalyser;
 import com.beust.jcommander.JCommander;
 import java.io.IOException;
 import ngsanalyser.ngsdata.NGSFile;
-import ngsanalyser.ngsdata.exception.NGSFileException;
+import ngsanalyser.ngsdata.NGSFileException;
 
 public class NGSAnalyser {
 
