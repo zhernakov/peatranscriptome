@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-abstract public class NGSFile {
+abstract public class NGSFile implements NGSCollectable {
     public static NGSFile NGSFileFactory(String filepath, NGSFileType type) throws NGSFileException {
         switch (type) {
             case FASTQ_SANGER:
@@ -29,5 +29,6 @@ abstract public class NGSFile {
         }
     }
 
-    abstract public NGSRecord next();
+    @Override
+    abstract public NGSRecord getNGSRecord();
 }

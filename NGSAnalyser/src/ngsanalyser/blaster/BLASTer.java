@@ -1,16 +1,16 @@
 package ngsanalyser.blaster;
 
-import ngsanalyser.ngsdata.NGSRecordsCollection;
-import ngsanalyser.ngsdata.NGSFile;
+import ngsanalyser.ngsdata.NGSAddible;
+import ngsanalyser.ngsdata.NGSCollectable;
 import ngsanalyser.ngsdata.NGSRecord;
 
 public class BLASTer {
-    private final NGSFile ngsfile;
+    private final NGSCollectable ngsfile;
     private final BLASTManager manager;
 
-    public BLASTer(NGSFile sourcefile, NGSRecordsCollection resultstorage, int threadnumber) {
-        this.ngsfile = sourcefile;
-        this.manager = new BLASTManager(threadnumber, resultstorage);
+    public BLASTer(NGSCollectable source, NGSAddible storage, int threadnumber) {
+        this.ngsfile = source;
+        this.manager = new BLASTManager(threadnumber, storage);
     }
 
     synchronized public void startBLAST() {
@@ -18,7 +18,7 @@ public class BLASTer {
             @Override
             public void run() {
                 NGSRecord record;
-                while ((record = ngsfile.next()) != null) {
+                while ((record = ngsfile.getNGSRecord()) != null) {
                     manager.startNewBLAST(record);
                 }
                 manager.shutdown();

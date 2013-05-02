@@ -1,14 +1,15 @@
 package ngsanalyser.blastparser;
 
-import ngsanalyser.ngsdata.NGSRecordsCollection;
+import ngsanalyser.ngsdata.NGSAddible;
+import ngsanalyser.ngsdata.NGSCollectable;
 
 public class Parser {
-    private final NGSRecordsCollection source;
-    private final NGSRecordsCollection target;
+    private final NGSCollectable source;
+    private final NGSAddible storage;
 
-    public Parser(NGSRecordsCollection source, NGSRecordsCollection target) {
+    public Parser(NGSCollectable source, NGSAddible target) {
         this.source = source;
-        this.target = target;
+        this.storage = target;
     }
     
     public void startParsing() {

@@ -1,20 +1,20 @@
 package ngsanalyser.blaster;
 
-import ngsanalyser.ngsdata.NGSRecordsCollection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
 
 public class BLASTManager {
     private final int timeinterval = 250;
     private final int threadnumber;
     private int threadinwork = 0;
-    private final NGSRecordsCollection resultstorage;
+    private final NGSAddible resultstorage;
     private final ExecutorService executor;
 
-    public BLASTManager(int threadnumber, NGSRecordsCollection resultstorage) {
+    public BLASTManager(int threadnumber, NGSAddible resultstorage) {
         this.threadnumber = threadnumber;
         this.resultstorage = resultstorage; 
         executor = Executors.newFixedThreadPool(threadnumber);

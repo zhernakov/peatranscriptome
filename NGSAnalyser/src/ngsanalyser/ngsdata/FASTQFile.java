@@ -75,7 +75,7 @@ public class FASTQFile extends NGSFile {
     }
 
     @Override
-    public NGSRecord next() {
+    public NGSRecord getNGSRecord() {
         if (iterator.hasNext()) {
             final Fastq fastq = iterator.next();
             return new NGSRecord(
