@@ -2,13 +2,12 @@ package blastdata;
 
 import java.util.LinkedList;
 import java.util.List;
-import org.biojava3.sequencing.io.fastq.Fastq;
+import ngsanalyser.ngsdata.NGSRecord;
 
 public class BlastedSequenceList {
-    private final List<Fastq> records = new LinkedList<>();
-    private final List<String> results = new LinkedList<>();
+    private final List<NGSRecord> records = new LinkedList<>();
     
-    synchronized public void setBlastResult(Fastq record) {
+    synchronized public void setBlastResult(NGSRecord record) {
         records.add(record);
     }
 }

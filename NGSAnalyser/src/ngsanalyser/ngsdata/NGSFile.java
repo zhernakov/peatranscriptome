@@ -31,5 +31,5 @@ abstract public class NGSFile {
     }
 
     abstract public boolean hasNext();
-    abstract public Fastq next();
+    abstract public NGSRecord next();
 }

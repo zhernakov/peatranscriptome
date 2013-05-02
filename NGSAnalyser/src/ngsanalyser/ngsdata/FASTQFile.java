@@ -60,7 +60,7 @@ public class FASTQFile extends NGSFile {
     private final int totalnumber;
     private final Iterator<Fastq> iterator;
     
-    FASTQFile(String filepath, NGSFileType type) throws NGSFileException {
+    public FASTQFile(String filepath, NGSFileType type) throws NGSFileException {
         this.filepath = filepath;
         try {
             final FastqReader reader = getFASTQReader(type);
@@ -80,8 +80,13 @@ public class FASTQFile extends NGSFile {
     }
 
     @Override
-    public Fastq next() {
-        return iterator.next();
+    public NGSRecord next() {
+        final Fastq fastq = iterator.next();
+        return new NGSRecord(
+                fastq.getDescription(), 
+                fastq.getSequence(), 
+                fastq.getQuality()
+        );
     }
 
 }

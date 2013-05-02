@@ -3,9 +3,12 @@ package ngsanalyser.blaster;
 import blastdata.BlastedSequenceList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.biojava3.sequencing.io.fastq.Fastq;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import ngsanalyser.ngsdata.NGSRecord;
 
 public class BLASTManager {
+    private final int timeinterval = 250;
     private final int threadnumber;
     private int threadinwork = 0;
     private final BlastedSequenceList resultstorage;
@@ -17,25 +20,35 @@ public class BLASTManager {
         executor = Executors.newFixedThreadPool(threadnumber);
     }
 
-    synchronized public void startNewBLAST(Fastq fastq) {
+    synchronized public void startNewBLAST(NGSRecord record) {
         try {
             while (threadinwork >= threadnumber)
                 wait();
-            startBlast(fastq);
+            startBlast(record);
         } catch (InterruptedException ex) {
             
         }
     }
 
-    private void startBlast(Fastq fastq) {
-        final BLASTQuery query = new BLASTQuery(this, fastq);
+    private void startBlast(NGSRecord record) {
+        final BLASTQuery query = new BLASTQuery(this, record);
         executor.execute(query);
         ++threadinwork;
+        try {
+            Thread.sleep(timeinterval);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(BLASTManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
-    synchronized public void blastFinished(Fastq query) {
-        --threadinwork;
-        notify();
+    synchronized public void blastFinished(NGSRecord record) {
+        if (record.getBlastResult() == null) {
+            startBlast(record);
+        } else {
+            resultstorage.setBlastResult(record);
+            --threadinwork;
+            notify();
+        }
     }
 
     synchronized public void shutdown() {
