@@ -3,7 +3,6 @@ package ngsanalyser.ngsdata;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import org.biojava3.sequencing.io.fastq.Fastq;
 
 abstract public class NGSFile {
     public static NGSFile NGSFileFactory(String filepath, NGSFileType type) throws NGSFileException {
@@ -30,6 +29,5 @@ abstract public class NGSFile {
         }
     }
 
-    abstract public boolean hasNext();
     abstract public NGSRecord next();
 }

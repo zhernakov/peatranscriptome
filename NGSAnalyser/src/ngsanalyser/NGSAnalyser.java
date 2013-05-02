@@ -1,11 +1,11 @@
 package ngsanalyser;
 
-import blastdata.BlastedSequenceList;
+import ngsanalyser.ngsdata.NGSRecordsCollection;
 import com.beust.jcommander.JCommander;
 import ngsanalyser.blaster.BLASTer;
 import ngsanalyser.ngsdata.NGSFile;
 import ngsanalyser.ngsdata.NGSFileException;
-import processor.Processor;
+import ngsanalyser.processor.Processor;
 
 public class NGSAnalyser {
 
@@ -18,7 +18,7 @@ public class NGSAnalyser {
         
         final NGSFile fastqfile = NGSFile.NGSFileFactory(settings.ngsfile);
         
-        final BlastedSequenceList storage = new BlastedSequenceList();
+        final NGSRecordsCollection storage = new NGSRecordsCollection();
         
         final BLASTer blaster = new BLASTer(fastqfile, storage, 20);
         blaster.startBLAST();

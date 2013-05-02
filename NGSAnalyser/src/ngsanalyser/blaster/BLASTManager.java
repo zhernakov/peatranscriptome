@@ -1,6 +1,6 @@
 package ngsanalyser.blaster;
 
-import blastdata.BlastedSequenceList;
+import ngsanalyser.ngsdata.NGSRecordsCollection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -11,10 +11,10 @@ public class BLASTManager {
     private final int timeinterval = 250;
     private final int threadnumber;
     private int threadinwork = 0;
-    private final BlastedSequenceList resultstorage;
+    private final NGSRecordsCollection resultstorage;
     private final ExecutorService executor;
 
-    public BLASTManager(int threadnumber, BlastedSequenceList resultstorage) {
+    public BLASTManager(int threadnumber, NGSRecordsCollection resultstorage) {
         this.threadnumber = threadnumber;
         this.resultstorage = resultstorage; 
         executor = Executors.newFixedThreadPool(threadnumber);
@@ -45,7 +45,7 @@ public class BLASTManager {
         if (record.getBlastResult() == null) {
             startBlast(record);
         } else {
-            resultstorage.setBlastResult(record);
+            resultstorage.addNGSRecord(record);
             --threadinwork;
             notify();
         }
@@ -53,5 +53,6 @@ public class BLASTManager {
 
     synchronized public void shutdown() {
         executor.shutdown();
+        resultstorage.terminate();
     }
 }

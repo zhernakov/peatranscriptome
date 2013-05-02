@@ -75,18 +75,17 @@ public class FASTQFile extends NGSFile {
     }
 
     @Override
-    public boolean hasNext() {
-        return iterator.hasNext();
-    }
-
-    @Override
     public NGSRecord next() {
-        final Fastq fastq = iterator.next();
-        return new NGSRecord(
-                fastq.getDescription(), 
-                fastq.getSequence(), 
-                fastq.getQuality()
-        );
+        if (iterator.hasNext()) {
+            final Fastq fastq = iterator.next();
+            return new NGSRecord(
+                    fastq.getDescription(), 
+                    fastq.getSequence(), 
+                    fastq.getQuality()
+            );
+        } else {
+            return null;
+        }
     }
 
 }

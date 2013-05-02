@@ -1,4 +1,4 @@
-package processor;
+package ngsanalyser.processor;
 
 import ngsanalyser.ngsdata.NGSFile;
 
