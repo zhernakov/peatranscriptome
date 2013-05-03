@@ -12,25 +12,24 @@ public class BLASTManager {
     private final int threadnumber;
     private int threadinwork = 0;
     private final NGSAddible resultstorage;
-    private final ExecutorService executor;
+    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public BLASTManager(int threadnumber, NGSAddible resultstorage) {
         this.threadnumber = threadnumber;
         this.resultstorage = resultstorage; 
-        executor = Executors.newFixedThreadPool(threadnumber);
     }
 
     synchronized public void startNewBLAST(NGSRecord record) {
         try {
             while (threadinwork >= threadnumber)
                 wait();
-            startBlast(record);
+            startBLAST(record);
         } catch (InterruptedException ex) {
             
         }
     }
 
-    private void startBlast(NGSRecord record) {
+    private void startBLAST(NGSRecord record) {
         final BLASTQuery query = new BLASTQuery(this, record);
         executor.execute(query);
         ++threadinwork;
@@ -41,18 +40,20 @@ public class BLASTManager {
         }
     }
 
-    synchronized public void blastFinished(NGSRecord record) {
+    synchronized public void finishBLAST(NGSRecord record) {
         if (record.getBlastResult() == null) {
-            startBlast(record);
+            startBLAST(record);
         } else {
             resultstorage.addNGSRecord(record);
-            --threadinwork;
+            if (--threadinwork == 0 && executor.isShutdown()) {
+                resultstorage.terminate();
+                System.out.println(resultstorage.getNumber() + " records were added to stotage after BLASTing");
+            }
             notify();
         }
     }
-
+    
     synchronized public void shutdown() {
         executor.shutdown();
-        resultstorage.terminate();
-    }
+     }
 }

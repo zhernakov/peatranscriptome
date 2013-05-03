@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import ngsanalyser.ngsdata.NGSRecord;
 import org.biojava3.core.sequence.io.util.IOUtils;
-import org.biojava3.sequencing.io.fastq.Fastq;
 import org.biojava3.ws.alignment.qblast.BlastProgramEnum;
 import org.biojava3.ws.alignment.qblast.NCBIQBlastAlignmentProperties;
 import org.biojava3.ws.alignment.qblast.NCBIQBlastOutputProperties;
@@ -22,11 +21,11 @@ public class BLASTQuery implements Runnable {
     }
     
     private final NGSRecord record;
-    private final BLASTManager controller;
+    private final BLASTManager manager;
     
-    public BLASTQuery(BLASTManager controller, NGSRecord record) {
+    public BLASTQuery(BLASTManager manager, NGSRecord record) {
         this.record = record;
-        this.controller = controller;
+        this.manager = manager;
     }
 
     @Override
@@ -39,7 +38,7 @@ public class BLASTQuery implements Runnable {
         } catch (Exception e) {
             System.err.println(e);
         } finally {
-            controller.blastFinished(record);
+            manager.finishBLAST(record);
         }
     }
 
@@ -60,7 +59,7 @@ public class BLASTQuery implements Runnable {
             while ((line = reader.readLine()) != null) {
                 writer.write(line + System.getProperty("line.separator"));
             }
-            record.setBlastresult(outputFilePath);
+            record.setBLASTResult(outputFilePath);
         } catch (Exception e) {
             System.err.println(e);
         } finally {

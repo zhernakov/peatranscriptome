@@ -1,5 +1,8 @@
 package ngsanalyser.ngsdata;
 
+import java.util.List;
+import java.util.Map;
+
 public class NGSRecord {
     private final String id;
     private final String additional;
@@ -7,6 +10,7 @@ public class NGSRecord {
     private final String quality;
     
     private String blastresult;
+    private List<Map<String, Object>> parsingresult;
 
     public NGSRecord(String id, String additional, String sequence, String quality) {
         this.id = id;
@@ -43,8 +47,12 @@ public class NGSRecord {
         return blastresult;
     }
     
-    public void setBlastresult(String blastresult) {
+    public void setBLASTResult(String blastresult) {
         this.blastresult = blastresult;
+    }
+
+    public void setBLASTParsing(List<Map<String, Object>> result) {
+        parsingresult = result;
     }
 
 }

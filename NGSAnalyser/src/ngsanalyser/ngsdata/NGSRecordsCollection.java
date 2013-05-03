@@ -37,4 +37,8 @@ public class NGSRecordsCollection implements NGSCollectable, NGSAddible{
             return list.remove(0);
         }
     }
+
+    synchronized public int getNumber() {
+        return list.size();
+    }
 }
