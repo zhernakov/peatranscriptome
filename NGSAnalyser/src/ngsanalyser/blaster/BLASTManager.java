@@ -1,25 +1,20 @@
 package ngsanalyser.blaster;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
+import ngsanalyser.processes.ProcessManager;
 
-public class BLASTManager {
+public class BLASTManager extends ProcessManager {
     private final int timeinterval = 250;
-    private final int threadnumber;
-    private int threadinwork = 0;
-    private final NGSAddible resultstorage;
-    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     public BLASTManager(int threadnumber, NGSAddible resultstorage) {
-        this.threadnumber = threadnumber;
-        this.resultstorage = resultstorage; 
+        super(threadnumber, resultstorage);
     }
 
-    synchronized public void startNewBLAST(NGSRecord record) {
+    @Override
+    synchronized public void startProcess(NGSRecord record) {
         try {
             while (threadinwork >= threadnumber)
                 wait();
@@ -40,20 +35,12 @@ public class BLASTManager {
         }
     }
 
-    synchronized public void finishBLAST(NGSRecord record) {
+    @Override
+    synchronized public void finishProcess(NGSRecord record) {
         if (record.getBlastResult() == null) {
             startBLAST(record);
         } else {
-            resultstorage.addNGSRecord(record);
-            if (--threadinwork == 0 && executor.isShutdown()) {
-                resultstorage.terminate();
-                System.out.println(resultstorage.getNumber() + " records were added to stotage after BLASTing");
-            }
-            notify();
+            ProcessSuccessful(record);
         }
     }
-    
-    synchronized public void shutdown() {
-        executor.shutdown();
-     }
 }

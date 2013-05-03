@@ -1,4 +1,4 @@
-package ngsanalyser.xmlparser;
+package ngsanalyser.blastresultparser;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -8,7 +8,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class XMLParserHandler extends DefaultHandler {
+public class XMLHandler extends DefaultHandler {
     private final List<Map<String,Object>> hits = new LinkedList<>();
     
     private Map<String,Object> hit;

@@ -1,16 +1,16 @@
-package ngsanalyser.xmlparser;
+package ngsanalyser.blastresultparser;
 
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSCollectable;
 import ngsanalyser.ngsdata.NGSRecord;
 
-public class XMLParser {
+public class BLASTResultParser {
     private final NGSCollectable source;
-    private final XMLParserManager manager;
+    private final ParserManager manager;
 
-    public XMLParser(NGSCollectable source, NGSAddible target) {
+    public BLASTResultParser(NGSCollectable source, NGSAddible target) {
         this.source = source;
-        manager = new XMLParserManager(2, target);
+        manager = new ParserManager(2, target);
     }
     
     public void startParsing() {
@@ -19,7 +19,7 @@ public class XMLParser {
             public void run() {
                 NGSRecord record;
                 while ((record = source.getNGSRecord()) != null) {
-                    manager.startParsing(record);
+                    manager.startProcess(record);
                 }
                 manager.shutdown();
             }

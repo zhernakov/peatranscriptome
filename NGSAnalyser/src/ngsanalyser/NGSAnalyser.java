@@ -5,7 +5,7 @@ import com.beust.jcommander.JCommander;
 import ngsanalyser.blaster.BLASTer;
 import ngsanalyser.ngsdata.NGSFile;
 import ngsanalyser.ngsdata.NGSFileException;
-import ngsanalyser.xmlparser.XMLParser;
+import ngsanalyser.blastresultparser.BLASTResultParser;
 
 public class NGSAnalyser {
 
@@ -22,7 +22,7 @@ public class NGSAnalyser {
         final NGSRecordsCollection parsingstorage = new NGSRecordsCollection();
         
         final BLASTer blaster = new BLASTer(fastqfile, blaststorage, 14);
-        final XMLParser parser = new XMLParser(blaststorage, parsingstorage);
+        final BLASTResultParser parser = new BLASTResultParser(blaststorage, parsingstorage);
         
         blaster.startBLAST();
         parser.startParsing();

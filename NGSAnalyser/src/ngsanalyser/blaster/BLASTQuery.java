@@ -38,7 +38,7 @@ public class BLASTQuery implements Runnable {
         } catch (Exception e) {
             System.err.println(e);
         } finally {
-            manager.finishBLAST(record);
+            manager.finishProcess(record);
         }
     }
 

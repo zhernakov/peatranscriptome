@@ -1,4 +1,4 @@
-package ngsanalyser.xmlparser;
+package ngsanalyser.blastresultparser;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,16 +10,16 @@ import javax.xml.parsers.SAXParserFactory;
 import ngsanalyser.ngsdata.NGSRecord;
 import org.xml.sax.SAXException;
 
-public class XMLParsing implements Runnable {
+public class ParsingThread implements Runnable {
     private static final SAXParserFactory factory = SAXParserFactory.newInstance();
     static {
         factory.setValidating(false);
     }
 
     private final NGSRecord record;
-    private final XMLParserManager manager;
+    private final ParserManager manager;
 
-    public XMLParsing(XMLParserManager manager, NGSRecord record) {
+    public ParsingThread(ParserManager manager, NGSRecord record) {
         this.record = record;
         this.manager = manager;
     }
@@ -27,17 +27,17 @@ public class XMLParsing implements Runnable {
     @Override
     public void run() {
         try {
-            final XMLParserHandler handler = new XMLParserHandler();
+            final XMLHandler handler = new XMLHandler();
             final SAXParser parser = factory.newSAXParser();
             parser.parse(new File(record.getBlastResult()), handler);
             record.setBLASTParsing(handler.getResult());
-            manager.finishParsing(record);
+            manager.finishProcess(record);
         } catch (ParserConfigurationException ex) {
-            Logger.getLogger(XMLParsing.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ParsingThread.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SAXException ex) {
-            Logger.getLogger(XMLParsing.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ParsingThread.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(XMLParsing.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ParsingThread.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
