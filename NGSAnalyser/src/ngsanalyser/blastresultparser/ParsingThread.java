@@ -31,13 +31,12 @@ public class ParsingThread implements Runnable {
             final SAXParser parser = factory.newSAXParser();
             parser.parse(new File(record.getBlastResultFilePath()), handler);
             record.setBLASTHits(handler.getResult());
+        } catch (ParserConfigurationException | SAXException | IOException ex) {
+            record.loqError(ex);
+        } catch (Exception ex) {
+            record.loqError(ex);
+        } finally {
             manager.recordProcessed(record);
-        } catch (ParserConfigurationException ex) {
-            Logger.getLogger(ParsingThread.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SAXException ex) {
-            Logger.getLogger(ParsingThread.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(ParsingThread.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     

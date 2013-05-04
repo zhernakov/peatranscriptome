@@ -1,7 +1,5 @@
 package ngsanalyser.blaster;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.processes.ProcessManager;
@@ -11,26 +9,27 @@ public class BLASTManager extends ProcessManager {
 
     public BLASTManager(int threadnumber, NGSAddible resultstorage) {
         super(threadnumber, resultstorage);
+        setTimer(timeinterval);
     }
 
     @Override
     synchronized public void processRecord(NGSRecord record) {
         final BLASTQuery query = new BLASTQuery(this, record);
-        processIsReady(query);
-        try {
-            Thread.sleep(timeinterval);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(BLASTManager.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        newRecordProcessing(query);
     }
 
     @Override
     synchronized public void recordProcessed(NGSRecord record) {
         if (record.getBlastResultFilePath() == null) {
-            final BLASTQuery query = new BLASTQuery(this, record);
-            restartProcess(query);
+            if (record.isConnectionLost()) {
+                record.resetConnectionFlag();
+                final BLASTQuery query = new BLASTQuery(this, record);
+                restartRecordProcessing(query);
+            } else {
+                recordCanNotBeProcessed(record);
+            }
         } else {
-            processSuccessfullyFinished(record);
+            recordSuccessfullyProcesed(record);
         }
     }
 }

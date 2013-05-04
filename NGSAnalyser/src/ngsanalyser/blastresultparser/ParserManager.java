@@ -12,11 +12,15 @@ public class ParserManager extends ProcessManager {
     @Override
     synchronized public void processRecord(NGSRecord record) {
         final ParsingThread process = new ParsingThread(this, record);
-        processIsReady(process);
+        newRecordProcessing(process);
     }
     
     @Override
     synchronized public void recordProcessed(NGSRecord record) {
-        processSuccessfullyFinished(record);
+        if (record.getBLASTHits() == null) {
+            recordCanNotBeProcessed(record);
+        } else {
+            recordSuccessfullyProcesed(record);
+        }
     }
 }
