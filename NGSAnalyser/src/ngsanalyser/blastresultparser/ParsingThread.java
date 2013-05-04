@@ -29,9 +29,9 @@ public class ParsingThread implements Runnable {
         try {
             final XMLHandler handler = new XMLHandler();
             final SAXParser parser = factory.newSAXParser();
-            parser.parse(new File(record.getBlastResult()), handler);
-            record.setBLASTParsing(handler.getResult());
-            manager.finishProcess(record);
+            parser.parse(new File(record.getBlastResultFilePath()), handler);
+            record.setBLASTHits(handler.getResult());
+            manager.recordProcessed(record);
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(ParsingThread.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SAXException ex) {

@@ -19,7 +19,7 @@ public class BLASTResultParser {
             public void run() {
                 NGSRecord record;
                 while ((record = source.getNGSRecord()) != null) {
-                    manager.startProcess(record);
+                    manager.processRecord(record);
                 }
                 manager.shutdown();
             }

@@ -38,7 +38,7 @@ public class BLASTQuery implements Runnable {
         } catch (Exception e) {
             System.err.println(e);
         } finally {
-            manager.finishProcess(record);
+            manager.recordProcessed(record);
         }
     }
 
@@ -59,7 +59,7 @@ public class BLASTQuery implements Runnable {
             while ((line = reader.readLine()) != null) {
                 writer.write(line + System.getProperty("line.separator"));
             }
-            record.setBLASTResult(outputFilePath);
+            record.setBLASTResultFilePath(outputFilePath);
         } catch (Exception e) {
             System.err.println(e);
         } finally {

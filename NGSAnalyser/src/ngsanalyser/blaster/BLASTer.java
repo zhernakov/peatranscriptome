@@ -19,7 +19,7 @@ public class BLASTer {
             public void run() {
                 NGSRecord record;
                 while ((record = ngsfile.getNGSRecord()) != null) {
-                    manager.startProcess(record);
+                    manager.processRecord(record);
                 }
                 manager.shutdown();
             }

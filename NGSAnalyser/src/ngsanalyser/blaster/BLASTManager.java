@@ -14,20 +14,9 @@ public class BLASTManager extends ProcessManager {
     }
 
     @Override
-    synchronized public void startProcess(NGSRecord record) {
-        try {
-            while (threadinwork >= threadnumber)
-                wait();
-            startBLAST(record);
-        } catch (InterruptedException ex) {
-            
-        }
-    }
-
-    private void startBLAST(NGSRecord record) {
+    synchronized public void processRecord(NGSRecord record) {
         final BLASTQuery query = new BLASTQuery(this, record);
-        executor.execute(query);
-        ++threadinwork;
+        processIsReady(query);
         try {
             Thread.sleep(timeinterval);
         } catch (InterruptedException ex) {
@@ -36,11 +25,12 @@ public class BLASTManager extends ProcessManager {
     }
 
     @Override
-    synchronized public void finishProcess(NGSRecord record) {
-        if (record.getBlastResult() == null) {
-            startBLAST(record);
+    synchronized public void recordProcessed(NGSRecord record) {
+        if (record.getBlastResultFilePath() == null) {
+            final BLASTQuery query = new BLASTQuery(this, record);
+            restartProcess(query);
         } else {
-            ProcessSuccessful(record);
+            processSuccessfullyFinished(record);
         }
     }
 }

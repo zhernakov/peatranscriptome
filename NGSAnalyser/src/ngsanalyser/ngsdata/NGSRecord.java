@@ -9,8 +9,9 @@ public class NGSRecord {
     private final String sequence;
     private final String quality;
     
-    private String blastresult;
-    private List<Map<String, Object>> parsingresult;
+    private String blastresultfilepath;
+    private List<Map<String, Object>> blasthits;
+    private int taxid;
 
     public NGSRecord(String id, String additional, String sequence, String quality) {
         this.id = id;
@@ -43,16 +44,28 @@ public class NGSRecord {
         return quality;
     }
 
-    public String getBlastResult() {
-        return blastresult;
+    public String getBlastResultFilePath() {
+        return blastresultfilepath;
     }
-    
-    public void setBLASTResult(String blastresult) {
-        this.blastresult = blastresult;
+  
+    public List<Map<String, Object>> getBLASTHits() {
+        return blasthits;
+    }
+  
+    public int getTaxonId() {
+        return taxid;
     }
 
-    public void setBLASTParsing(List<Map<String, Object>> result) {
-        parsingresult = result;
+    public void setBLASTResultFilePath(String blastresult) {
+        this.blastresultfilepath = blastresult;
+    }
+
+    public void setBLASTHits(List<Map<String, Object>> hits) {
+        blasthits = hits;
+    }
+
+    public void setTaxonId(int taxid) {
+        this.taxid = taxid;
     }
 
 }
