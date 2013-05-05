@@ -3,19 +3,17 @@ package ngsanalyser.blasthitsanalyzer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Set;
 import ngsanalyser.exception.LostConnectionException;
+import ngsanalyser.exception.ParsingException;
 import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.taxonomy.Taxonomy;
 import ngsanalyser.taxonomy.TaxonomyHierarchyException;
-import org.biojava.bio.seq.db.IllegalIDException;
-import org.biojavax.bio.db.ncbi.GenbankRichSequenceDB;
-import org.biojavax.bio.seq.RichSequence;
 
 public class AnalyzingThread implements Runnable {
+    private static final NCBIQueryService ncbiservice = new NCBIQueryService();
+    
     private final Taxonomy taxonomy;
-    private final GenbankRichSequenceDB grsdb = new GenbankRichSequenceDB();
     private final NGSRecord record;
     private final AnalyzerManager manager;
     private final double criticalEvalue;
@@ -32,32 +30,40 @@ public class AnalyzingThread implements Runnable {
         try {
             final int taxonid = defineCommonTaxonId();
             record.setTaxonId(taxonid);
-        } catch (IllegalIDException | TaxonomyHierarchyException ex) {
-            record.loqError(ex);
         } catch (LostConnectionException ex) {
             record.connectionLost();
-        } catch (Exception ex) {
+        } catch (ParsingException | TaxonomyHierarchyException ex) {
             record.loqError(ex);
         } finally {
             manager.recordProcessed(record);
         }
     }
 
-    private int defineCommonTaxonId() throws IllegalIDException, TaxonomyHierarchyException, LostConnectionException {
-        final List<Map<String, Object>> hits = record.getBLASTHits();
-        final List<Integer> taxids = new LinkedList<>();
-        for (final Map<String, Object> hit : hits) {
-            final double evalue = defineEvalue(hit.get("Hit_hsps"));
-            if (evalue == 0) {
-                return defineTaxonId(hit.get("Hit_accession"));
-            } else if (evalue < criticalEvalue) {
-                taxids.add(defineTaxonId(hit.get("Hit_accession")));
-            }
-        }
-        return taxonomy.findCommonAncestor(taxids);
+    private int defineCommonTaxonId() throws LostConnectionException, ParsingException, TaxonomyHierarchyException {
+        final List<String> seqids = selectHits(record.getBLASTHits(), criticalEvalue);
+        if (seqids.isEmpty()) return 1;
+        final Set<Integer> taxonids = ncbiservice.defineTaxonIds(seqids);
+        if (taxonids.isEmpty()) return 1;
+        final int commonid = taxonomy.findCommonAncestor(taxonids);
+        return commonid;
     }
     
-    private double defineEvalue(Object object) {
+    private static List<String> selectHits(List<Map<String, Object>> blastHits, double criticalEvalue) {
+        final List<String> seqids = new LinkedList<>();
+        for (final Map<String, Object> hit : blastHits) {
+            final double evalue = getMinimalEValue(hit.get("Hit_hsps"));
+            if (evalue == 0) {
+                seqids.clear();
+                seqids.add(getHitGeneId(hit.get("Hit_id")));
+                break;
+            } else if (evalue < criticalEvalue) {
+                seqids.add(getHitGeneId(hit.get("Hit_id")));
+            }
+        }
+        return seqids;
+    }
+    
+    private static double getMinimalEValue(Object object) {
         final List<Map<String, Object>> hsps = (List<Map<String, Object>>)object;
         double evalue = 1.;
         for (final Map<String, Object> hsp : hsps) {
@@ -69,23 +75,8 @@ public class AnalyzingThread implements Runnable {
         return evalue;
     }
 
-    private int defineTaxonId(Object acession) throws IllegalIDException, LostConnectionException {
-        int trycount = 0;
-        while (trycount < 10) {
-            try {
-                final RichSequence rs = grsdb.getRichSequence((String)acession);
-                return rs.getTaxon().getNCBITaxID();
-            } catch (IllegalIDException ex) {
-                throw ex;
-            } catch (Exception ex) {
-                ++trycount;
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException ex1) {
-                    Logger.getLogger(AnalyzingThread.class.getName()).log(Level.SEVERE, null, ex1);
-                }
-            }
-        }
-        throw new LostConnectionException();
+    private static String getHitGeneId(Object obj) {
+        final Map<String,List<String>> ids = (Map<String,List<String>>) obj;
+        return ids.get("gi").get(0);
     }
 }

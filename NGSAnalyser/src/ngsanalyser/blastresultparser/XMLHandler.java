@@ -1,5 +1,6 @@
 package ngsanalyser.blastresultparser;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +17,10 @@ public class XMLHandler extends DefaultHandler {
     private Map<String,Object> hsp;
     
     private StringBuffer buffer;
+
+    public List<Map<String, Object>> getResult() {
+        return hits;
+    }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -50,6 +55,9 @@ public class XMLHandler extends DefaultHandler {
                 hit = null;
                 break;
             case "Hit_id":
+                hit.put(qName, parseHitId(buffer.toString()));
+                buffer = null;
+                break;
             case "Hit_def":
             case "Hit_accession":
                 hit.put(qName, buffer.toString());
@@ -80,7 +88,23 @@ public class XMLHandler extends DefaultHandler {
         }
     }
 
-    public List<Map<String, Object>> getResult() {
-        return hits;
+    private static Map<String,List<String>> parseHitId(String string) {
+        final Map<String,List<String>> idsmap = new HashMap<>();
+        List<String> idslist = null;
+        for (final String element : string.split("\\|")) {
+            switch (element) {
+                case "gb":
+                case "gi":
+                    idslist = new LinkedList<>();
+                    idsmap.put(element, idslist);
+                    break;
+                default:
+                    if (idslist != null) {
+                        idslist.add(element);
+                    }
+            }
+        }
+        return idsmap;
     }
+
 }

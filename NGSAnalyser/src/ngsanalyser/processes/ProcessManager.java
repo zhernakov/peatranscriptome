@@ -8,15 +8,17 @@ import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
 
 abstract public class ProcessManager {
+    private final ExecutorService executor = Executors.newCachedThreadPool();
+    private final NGSAddible resultstorage;
+    private final NGSAddible failedstorage;
     private final int threadnumber;
     private int threadinwork = 0;
-    private final NGSAddible resultstorage;
-    private final ExecutorService executor = Executors.newCachedThreadPool();
     private Timer timer;
 
-    public ProcessManager(int threadnumber, NGSAddible resultstorage) {
-        this.threadnumber = threadnumber;
+    public ProcessManager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
         this.resultstorage = resultstorage;
+        this.failedstorage = failedstorage;
+        this.threadnumber = threadnumber;
     }
 
     abstract public void processRecord(NGSRecord record);
@@ -49,13 +51,14 @@ abstract public class ProcessManager {
         resultstorage.addNGSRecord(record);
         if (--threadinwork == 0 && executor.isShutdown()) {
             resultstorage.terminate();
-            System.out.println(resultstorage.getNumber() + " records were added to stotage after Parsing");
+            System.out.println(resultstorage.getNumber() + " records were added to stotage");
         }
         notify();
     }
     
     synchronized protected void recordCanNotBeProcessed(NGSRecord record) {
-        
+        failedstorage.addNGSRecord(record);
+        --threadinwork;
     }
     
     synchronized public void shutdown() {

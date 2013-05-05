@@ -8,9 +8,9 @@ public class BLASTResultParser {
     private final NGSCollectable source;
     private final ParserManager manager;
 
-    public BLASTResultParser(NGSCollectable source, NGSAddible target) {
+    public BLASTResultParser(NGSCollectable source, NGSAddible resultstorage, NGSAddible failedstorage) {
         this.source = source;
-        manager = new ParserManager(2, target);
+        manager = new ParserManager(resultstorage, failedstorage, 2);
     }
     
     public void startParsing() {

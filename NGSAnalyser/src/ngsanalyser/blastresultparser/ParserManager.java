@@ -5,8 +5,8 @@ import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.processes.ProcessManager;
 
 public class ParserManager extends ProcessManager {
-    public ParserManager(int threadnumber, NGSAddible resultstorage) {
-        super(threadnumber, resultstorage);
+    public ParserManager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
+        super(resultstorage, failedstorage, threadnumber);
     }
     
     @Override

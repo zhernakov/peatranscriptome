@@ -8,8 +8,8 @@ import ngsanalyser.taxonomy.Taxonomy;
 public class AnalyzerManager extends ProcessManager {
     private final Taxonomy taxonomy;
     
-    public AnalyzerManager(int threadnumber, NGSAddible resultstorage, Taxonomy taxonomy) {
-        super(threadnumber, resultstorage);
+    public AnalyzerManager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, Taxonomy taxonomy) {
+        super(resultstorage, failedstorage, threadnumber);
         this.taxonomy = taxonomy;
     }
 

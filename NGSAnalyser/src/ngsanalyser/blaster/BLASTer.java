@@ -8,9 +8,9 @@ public class BLASTer {
     private final NGSCollectable ngsfile;
     private final BLASTManager manager;
 
-    public BLASTer(NGSCollectable source, NGSAddible storage, int threadnumber) {
+    public BLASTer(NGSCollectable source, NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
         this.ngsfile = source;
-        this.manager = new BLASTManager(threadnumber, storage);
+        this.manager = new BLASTManager(resultstorage, failedstorage, threadnumber);
     }
 
     synchronized public void startBLAST() {

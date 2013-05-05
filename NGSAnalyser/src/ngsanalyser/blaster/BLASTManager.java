@@ -7,8 +7,8 @@ import ngsanalyser.processes.ProcessManager;
 public class BLASTManager extends ProcessManager {
     private final int timeinterval = 250;
 
-    public BLASTManager(int threadnumber, NGSAddible resultstorage) {
-        super(threadnumber, resultstorage);
+    public BLASTManager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
+        super(resultstorage, failedstorage, threadnumber);
         setTimer(timeinterval);
     }
 
