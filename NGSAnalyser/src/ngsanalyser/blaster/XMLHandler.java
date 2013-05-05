@@ -1,4 +1,4 @@
-package ngsanalyser.blastresultparser;
+package ngsanalyser.blaster;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

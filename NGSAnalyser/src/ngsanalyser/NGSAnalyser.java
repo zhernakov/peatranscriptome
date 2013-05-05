@@ -6,7 +6,6 @@ import ngsanalyser.blaster.BLASTer;
 import ngsanalyser.blasthitsanalyzer.BLASTHitsAnalyzer;
 import ngsanalyser.ngsdata.NGSFile;
 import ngsanalyser.ngsdata.NGSFileException;
-import ngsanalyser.blastresultparser.BLASTResultParser;
 import ngsanalyser.taxonomy.Taxonomy;
 import ngsanalyser.taxonomy.TaxonomyException;
 
