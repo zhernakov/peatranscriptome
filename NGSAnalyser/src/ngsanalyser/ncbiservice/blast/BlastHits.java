@@ -1,5 +1,6 @@
 package ngsanalyser.ncbiservice.blast;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,10 +14,15 @@ public class BlastHits {
         hits.add(hit);
     }
 
-    public Iterable<String> getSeqIdsSet(DBID dbid, double criticalEvalue) {
+    public Collection<String> getSeqIdsSet(DBID dbid, double criticalEvalue) {
         final Set<String> seqids = new HashSet<>();
         for (final Hit hit : hits) {
-            if (hit.getMinimalEValue() < criticalEvalue) {
+            final double evalue = hit.getMinimalEValue();
+            if (evalue == 0) {
+                seqids.clear();
+                seqids.addAll(hit.getSeqIds(dbid));
+                break;
+            } else if (evalue < criticalEvalue) {
                 seqids.addAll(hit.getSeqIds(dbid));
             }
         }

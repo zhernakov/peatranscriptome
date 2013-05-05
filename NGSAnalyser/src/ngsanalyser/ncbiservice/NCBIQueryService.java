@@ -13,13 +13,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.exception.ParsingException;
-import ngsanalyser.processes.Timer;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class NCBIQueryService {
-    private static final Timer timer = new Timer(250);
     private static final SAXParserFactory factory = SAXParserFactory.newInstance();
     private static final String elink = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi";
     private final int waitinterval = 10000;
@@ -57,7 +55,6 @@ public class NCBIQueryService {
         final int attempts = 10;
         for (int attemp = 0; attemp < attempts; ++attemp) {
             try {
-                timer.start();
                 final URLConnection connection = url.openConnection();
                 connection.setConnectTimeout(10000);
                 return connection.getInputStream();

@@ -13,7 +13,6 @@ abstract public class ProcessManager {
     private final NGSAddible failedstorage;
     private final int threadnumber;
     private int threadinwork = 0;
-    private Timer timer;
 
     public ProcessManager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
         this.resultstorage = resultstorage;
@@ -24,10 +23,6 @@ abstract public class ProcessManager {
     abstract public void processRecord(NGSRecord record);
     abstract public void recordProcessed(NGSRecord record);
     
-    protected void setTimer(int interval) {
-        timer = new Timer(interval);
-    }
-    
     synchronized protected void newRecordProcessing(Runnable thread) {
         try {
             while (threadinwork >= threadnumber) {
@@ -35,9 +30,6 @@ abstract public class ProcessManager {
             }
             executor.execute(thread);
             ++threadinwork;
-            if (timer != null) {
-                timer.start();
-            }
         } catch (InterruptedException ex) {
             Logger.getLogger(ProcessManager.class.getName()).log(Level.SEVERE, null, ex);
         }

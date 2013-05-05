@@ -25,6 +25,8 @@ public class BLASTQuery implements Runnable {
             record.connectionLost();
         } catch (ParsingException ex) {
             record.loqError(ex);
+        } catch (Exception ex) {
+            record.loqError(ex);
         } finally {
             manager.recordProcessed(record);
             System.out.println("Blast for " + id + " finished.");

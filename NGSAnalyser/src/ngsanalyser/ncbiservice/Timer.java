@@ -1,4 +1,4 @@
-package ngsanalyser.processes;
+package ngsanalyser.ncbiservice;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

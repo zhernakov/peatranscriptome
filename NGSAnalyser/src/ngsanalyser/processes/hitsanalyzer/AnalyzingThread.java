@@ -1,5 +1,6 @@
 package ngsanalyser.processes.hitsanalyzer;
 
+import java.util.Collection;
 import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.exception.ParsingException;
 import ngsanalyser.ncbiservice.NCBIService;
@@ -22,20 +23,25 @@ public class AnalyzingThread implements Runnable {
     @Override
     public void run() {
         final String id = record.getId();
-        System.out.println("Hit analysis for " + id + " started.");
+        System.out.println("Hits analysis for " + id + " started.");
         
         try {
-            final Iterable<String> seqids = record.getBLASTHits().getSeqIdsSet(DBID.gi, criticalEvalue);
-            final Iterable<Integer> taxids = NCBIService.INSTANCE.getTaxIdsSet(seqids);
-            final int cmntaxid = Taxonomy.INSTANCE.findCommonAncestor(taxids);
+            int cmntaxid = 0;
+            final Collection<String> seqids = record.getBLASTHits().getSeqIdsSet(DBID.gi, criticalEvalue);
+            if (!seqids.isEmpty()) {
+                final Collection<Integer> taxids = NCBIService.INSTANCE.getTaxIdsSet(seqids);
+                cmntaxid = Taxonomy.INSTANCE.findCommonAncestor(taxids);
+            }
             record.setTaxonId(cmntaxid);
         } catch (NoConnectionException ex) {
             record.connectionLost();
         } catch (ParsingException | TaxonomyHierarchyException ex) {
             record.loqError(ex);
+        } catch (Exception ex) {
+            record.loqError(ex);
         } finally {
             manager.recordProcessed(record);
-            System.out.println("Hit analysis for " + id + " finished. Common ancestor - " + record.getTaxonId());
+            System.out.println("Hits analysis for " + id + " finished. Common ancestor - " + record.getTaxonId());
         }
     }
 }

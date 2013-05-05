@@ -2,6 +2,7 @@ package ngsanalyser.ncbiservice;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import ngsanalyser.exception.NoConnectionException;
@@ -26,12 +27,15 @@ public class NCBIService {
     
     private static final SAXParserFactory parserfactory = SAXParserFactory.newInstance();
     
+    private static final Timer timer = new Timer(250);
+
     static {
         alignprop.setBlastProgram(BlastProgramEnum.megablast);
         alignprop.setBlastDatabase("nr");
     }
     
     public BlastHits blast(String sequence) throws NoConnectionException, ParsingException {
+        timer.start();
         final InputStream is = sendBLASTQuery(sequence);
         return parseBLASTResult(is);
     }
@@ -65,7 +69,8 @@ public class NCBIService {
         return null;
     }
 
-    public Iterable<Integer> getTaxIdsSet(Iterable<String> seqids) throws NoConnectionException, ParsingException {
+    public Collection<Integer> getTaxIdsSet(Iterable<String> seqids) throws NoConnectionException, ParsingException {
+        timer.start();
         return ncbiservice.defineTaxonIds(seqids);
     }
 }
