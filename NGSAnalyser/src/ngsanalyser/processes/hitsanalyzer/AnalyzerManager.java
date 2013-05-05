@@ -1,21 +1,17 @@
-package ngsanalyser.blasthitsanalyzer;
+package ngsanalyser.processes.hitsanalyzer;
 
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.processes.ProcessManager;
-import ngsanalyser.taxonomy.Taxonomy;
 
 public class AnalyzerManager extends ProcessManager {
-    private final Taxonomy taxonomy;
-    
-    public AnalyzerManager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, Taxonomy taxonomy) {
+    public AnalyzerManager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
         super(resultstorage, failedstorage, threadnumber);
-        this.taxonomy = taxonomy;
     }
 
     @Override
     synchronized public void processRecord(NGSRecord record) {
-        final AnalyzingThread process = new AnalyzingThread(this, record, taxonomy, 1e-25);
+        final AnalyzingThread process = new AnalyzingThread(this, record, 1e-25);
         newRecordProcessing(process);
     }
 
@@ -24,7 +20,7 @@ public class AnalyzerManager extends ProcessManager {
         if (record.getTaxonId() == -1) {
             if (record.isConnectionLost()) {
                 record.resetConnectionFlag();
-                restartRecordProcessing(new AnalyzingThread(this, record, taxonomy, 1e-25));
+                restartRecordProcessing(new AnalyzingThread(this, record, 1e-25));
             } else {
                 recordCanNotBeProcessed(record);
             }

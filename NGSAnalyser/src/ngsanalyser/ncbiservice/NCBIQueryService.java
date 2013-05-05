@@ -1,4 +1,4 @@
-package ngsanalyser.blasthitsanalyzer;
+package ngsanalyser.ncbiservice;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +24,7 @@ public class NCBIQueryService {
     private static final String elink = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi";
     private final int waitinterval = 10000;
 
-    public Set<Integer> defineTaxonIds(Collection<String> ids) throws NoConnectionException, ParsingException {
+    public Set<Integer> defineTaxonIds(Iterable<String> ids) throws NoConnectionException, ParsingException {
         try {
             final String url = composeQueryStatement(ids);
             final InputStream in = openURL(new URL(url));
@@ -37,7 +37,7 @@ public class NCBIQueryService {
         }
     }
 
-    private String composeQueryStatement(Collection<String> ids) {
+    private String composeQueryStatement(Iterable<String> ids) {
         String url = elink + "?dbfrom=nucleotide&db=taxonomy&id=";
         for (final String id : ids) {
             url += id + ",";

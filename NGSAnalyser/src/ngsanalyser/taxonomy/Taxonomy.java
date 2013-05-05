@@ -14,27 +14,25 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Taxonomy {
-    private static Taxonomy taxonomy;
-    private static String defaultpath = "D:\\_workspace\\peatranscriptome\\_data\\taxonomy";
-    
-    synchronized public static Taxonomy getDefaultInstance() throws TaxonomyException {
-        if (taxonomy == null) {
-            taxonomy = new Taxonomy(defaultpath);
-        }
-        return taxonomy;
-    }
-    
-    synchronized public static Taxonomy getNewInstance(String path) throws TaxonomyException {
-        return new Taxonomy(path);
-    }
+    public static final Taxonomy INSTANCE = new Taxonomy();
 
-    synchronized public static void setDefaultpath(String defaultpath) {
-        Taxonomy.defaultpath = defaultpath;
+    private Taxonomy() {
+        
+    }
+    
+    private static String path = "D:\\_workspace\\peatranscriptome\\_data\\taxonomy";
+    
+    synchronized public static void setSourcePath(String defaultpath) {
+        Taxonomy.path = defaultpath;
+    }
+    
+    synchronized public static void loadSource() throws TaxonomyException {
+        INSTANCE.loadData();
     }
     
     private final Map<Integer,Integer> db = new TreeMap<>();
 
-    private Taxonomy(String path) throws TaxonomyException {
+    private void loadData() throws TaxonomyException {
         FileInputStream in = null;
         final byte[] array = new byte[6];
 
@@ -75,7 +73,7 @@ public class Taxonomy {
         return db.containsKey(taxid);
     }
     
-    public int findCommonAncestor(Collection<Integer> list) throws TaxonomyHierarchyException{
+    public int findCommonAncestor(Iterable<Integer> list) throws TaxonomyHierarchyException{
         final Iterator<Integer> it = list.iterator();
         final LinkedList<Integer> ancestors = defineAncestors(it.next());
         while (it.hasNext()) {

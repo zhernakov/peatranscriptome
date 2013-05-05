@@ -1,20 +1,19 @@
-package ngsanalyser.blasthitsanalyzer;
+package ngsanalyser.processes.hitsanalyzer;
 
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSCollectable;
 import ngsanalyser.ngsdata.NGSRecord;
-import ngsanalyser.taxonomy.Taxonomy;
 
-public class BLASTHitsAnalyzer {
+public class HitsAnalyzer {
     private final NGSCollectable source;
     private final AnalyzerManager manager;
 
-    public BLASTHitsAnalyzer(
+    public HitsAnalyzer(
             NGSCollectable source,  NGSAddible resultstorage, 
-            NGSAddible failedstorage, int threadnumber, Taxonomy taxonomy
+            NGSAddible failedstorage, int threadnumber
     ) {
         this.source = source;
-        manager = new AnalyzerManager(resultstorage, failedstorage, threadnumber, taxonomy);
+        manager = new AnalyzerManager(resultstorage, failedstorage, threadnumber);
     }
     
     public void startAnalysis () {

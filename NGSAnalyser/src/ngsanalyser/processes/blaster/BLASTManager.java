@@ -1,4 +1,4 @@
-package ngsanalyser.blaster;
+package ngsanalyser.processes.blaster;
 
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;

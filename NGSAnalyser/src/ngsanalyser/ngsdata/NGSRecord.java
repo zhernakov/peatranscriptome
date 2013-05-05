@@ -2,6 +2,7 @@ package ngsanalyser.ngsdata;
 
 import java.util.List;
 import java.util.Map;
+import ngsanalyser.ncbiservice.blast.BlastHits;
 
 public class NGSRecord {
     private final String recordid;
@@ -9,8 +10,7 @@ public class NGSRecord {
     private final String sequence;
     private final String quality;
     
-    private String blastresultfilepath;
-    private List<Map<String, Object>> blasthits;
+    private BlastHits blasthits;
     private int taxid = -1;
     
     private boolean connectionlost = false;
@@ -64,11 +64,7 @@ public class NGSRecord {
         return quality;
     }
 
-    public String getBlastResultFilePath() {
-        return blastresultfilepath;
-    }
-  
-    public List<Map<String, Object>> getBLASTHits() {
+    public BlastHits getBLASTHits() {
         return blasthits;
     }
   
@@ -76,11 +72,7 @@ public class NGSRecord {
         return taxid;
     }
 
-    public void setBLASTResultFilePath(String blastresult) {
-        this.blastresultfilepath = blastresult;
-    }
-
-    public void setBLASTHits(List<Map<String, Object>> hits) {
+    public void setBLASTHits(BlastHits hits) {
         blasthits = hits;
     }
 
