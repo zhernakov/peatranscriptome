@@ -23,20 +23,20 @@ public class NGSAnalyser {
         
         final NGSRecordsCollection failedstorage = new NGSRecordsCollection();
         final NGSRecordsCollection blaststorage = new NGSRecordsCollection();
-        final NGSRecordsCollection parsingstorage = new NGSRecordsCollection();
+//        final NGSRecordsCollection parsingstorage = new NGSRecordsCollection();
         final NGSRecordsCollection analysisstorage = new NGSRecordsCollection();
         
         final Taxonomy taxonomy = Taxonomy.getDefaultInstance();
         
         final BLASTer blaster = new BLASTer(fastqfile, blaststorage, failedstorage, 14);
-        final BLASTResultParser parser = new BLASTResultParser(blaststorage, parsingstorage, failedstorage);
-        final BLASTHitsAnalyzer analyzer = new BLASTHitsAnalyzer(parsingstorage, analysisstorage, failedstorage, 20, taxonomy);
+//        final BLASTResultParser parser = new BLASTResultParser(blaststorage, parsingstorage, failedstorage);
+        final BLASTHitsAnalyzer analyzer = new BLASTHitsAnalyzer(blaststorage, analysisstorage, failedstorage, 20, taxonomy);
         
         blaster.startBLAST();
-        parser.startParsing();
+//        parser.startParsing();
         analyzer.startAnalysis();
         
-        System.out.println(parsingstorage.getNumber());
+        System.out.println(failedstorage.getNumber());
         
 //        final Processor processor = new Processor(fastqfile);
 //        processor.startAnalysis();

@@ -20,7 +20,9 @@ public class BLASTManager extends ProcessManager {
 
     @Override
     synchronized public void recordProcessed(NGSRecord record) {
-        if (record.getBlastResultFilePath() == null) {
+        if (record.getBLASTHits() != null) {
+            recordSuccessfullyProcesed(record);
+        } else {
             if (record.isConnectionLost()) {
                 record.resetConnectionFlag();
                 final BLASTQuery query = new BLASTQuery(this, record);
@@ -28,8 +30,6 @@ public class BLASTManager extends ProcessManager {
             } else {
                 recordCanNotBeProcessed(record);
             }
-        } else {
-            recordSuccessfullyProcesed(record);
         }
     }
 }

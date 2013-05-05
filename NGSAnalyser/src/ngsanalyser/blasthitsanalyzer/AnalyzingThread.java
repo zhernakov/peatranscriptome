@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import ngsanalyser.exception.LostConnectionException;
+import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.exception.ParsingException;
 import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.taxonomy.Taxonomy;
@@ -27,23 +27,31 @@ public class AnalyzingThread implements Runnable {
 
     @Override
     public void run() {
+        final String id = record.getId();
+        System.out.println("Hit analysis for " + id + " started.");
+
         try {
             final int taxonid = defineCommonTaxonId();
             record.setTaxonId(taxonid);
-        } catch (LostConnectionException ex) {
+        } catch (NoConnectionException ex) {
             record.connectionLost();
         } catch (ParsingException | TaxonomyHierarchyException ex) {
             record.loqError(ex);
         } finally {
             manager.recordProcessed(record);
+            System.out.println("Hit analysis for " + id + " finished. Common ancestor - " + record.getTaxonId());
         }
     }
 
-    private int defineCommonTaxonId() throws LostConnectionException, ParsingException, TaxonomyHierarchyException {
+    private int defineCommonTaxonId() throws NoConnectionException, ParsingException, TaxonomyHierarchyException {
         final List<String> seqids = selectHits(record.getBLASTHits(), criticalEvalue);
-        if (seqids.isEmpty()) return 1;
+        if (seqids.isEmpty()) {
+            return 1;
+        }
         final Set<Integer> taxonids = ncbiservice.defineTaxonIds(seqids);
-        if (taxonids.isEmpty()) return 1;
+        if (taxonids.isEmpty()) {
+            return 1;
+        }
         final int commonid = taxonomy.findCommonAncestor(taxonids);
         return commonid;
     }
