@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +17,7 @@ public class TaxonRS {
         if (!db.containsKey(parentid)) {
             db.put(parentid, new LinkedList<Integer>());
         }
-        final List list = db.get(parentid);
+        List<Integer> list = db.get(parentid);
         list.add(taxid);
     }
 
@@ -26,7 +25,9 @@ public class TaxonRS {
         final FileOutputStream stream = new FileOutputStream(out);
 
         final List<Integer> parentslist = new LinkedList<>();
-        parentslist.add(Collections.min(db.keySet()));
+        parentslist.addAll(db.get(new Integer(1)));
+        parentslist.remove(new Integer(1));
+        stream.write(code(1,1));
         
         while (!parentslist.isEmpty()) {
             final Integer parent = parentslist.remove(0);

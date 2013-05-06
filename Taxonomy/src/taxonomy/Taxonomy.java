@@ -13,7 +13,7 @@ public class Taxonomy {
     
     public static void main(String[] args) throws FileNotFoundException, ParseException, IOException {
         final File src = new File(args[1]);
-        final File outputdir = new File (args.length > 1 ? args[2] : ""); 
+        final File outputdir = new File (args.length > 2 ? args[2] : "."); 
 
         switch (args[0]) {
             case "r":
@@ -35,5 +35,6 @@ public class Taxonomy {
         while ((taxon = loader.readNode(reader)) != null) {
             db.add(taxon.getNCBITaxID(), taxon.getParentNCBITaxID());
         }
+        db.write(out);
     }
 }
