@@ -30,7 +30,10 @@ class Processor:
         def flush(self):
                 if self.query:
                         print (str(self.query)[0:-1])
-                        #connection.cursor().execute(self.query[0:-1])
+                        cursor = self.connection.cursor()
+                        cursor.execute(self.query[0:-1])
+                        self.connection.commit()
+                        cursor.close()
                         print (str(self.processed) + ' pairs were added')
                         self.query = None
                         self.count = 0
@@ -47,13 +50,14 @@ connection = mysql.connector.connect(
 processor = Processor(connection)
 
 f = open(path, 'rb')
-
 while True:
         read = f.read(6)
         if not read:
                 break
         processor.add(getValue(read))
-
-
 f.close
+
+processor.flush()
+
+
 connection.close()
