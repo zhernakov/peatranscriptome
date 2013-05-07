@@ -25,18 +25,17 @@ public class TaxonRS {
         final FileOutputStream stream = new FileOutputStream(out);
 
         final List<Integer> parentslist = new LinkedList<>();
-        parentslist.addAll(db.get(new Integer(1)));
-        parentslist.remove(new Integer(1));
-        stream.write(code(1,1));
+        parentslist.add(new Integer(1));
         
         while (!parentslist.isEmpty()) {
             final Integer parent = parentslist.remove(0);
             final List<Integer> taxids = db.get(parent);
             if (taxids != null) {
-                parentslist.addAll(taxids);
                 for (final Integer taxid : taxids) {
                     stream.write(code(taxid, parent));
                 }
+                parentslist.addAll(taxids);
+                parentslist.remove(new Integer(1));
             }
         }
         
