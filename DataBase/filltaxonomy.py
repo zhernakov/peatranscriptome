@@ -17,17 +17,21 @@ class Processor:
         def __init__(self, cnc):
                 self.connection = cnc
                 self.count = 0
+                self.processed = 0
                 self.query = None
         def add(self, values):
                 if not self.query:
-                        self.query = 'INSERT INTO transcriptom VALUES '
-                self.query += '(' + str(values[0]) + ',' + str(values[0]) + '),'
+                        self.query = 'INSERT INTO peatranscriptome.taxonomy VALUES '
+                self.query += '(' + str(values[0]) + ',' + str(values[1]) + '),'
                 self.count += 1
-                if self.count > 100:
+                self.processed += 1
+                if self.count > 200:
                         self.flush()
         def flush(self):
                 if self.query:
-                        print (self.query)
+                        print (str(self.query)[0:-1])
+                        #connection.cursor().execute(self.query[0:-1])
+                        print (str(self.processed) + ' pairs were added')
                         self.query = None
                         self.count = 0
                         
@@ -44,23 +48,12 @@ processor = Processor(connection)
 
 f = open(path, 'rb')
 
-count = 0 
 while True:
         read = f.read(6)
         if not read:
                 break
         processor.add(getValue(read))
-        count += 1
 
-print (count)
-
- 
-cursor = connection.cursor()
- 
-cursor.execute("SELECT * FROM taxonomy")
- 
-for (id) in cursor:
-	print (id)
 
 f.close
 connection.close()
