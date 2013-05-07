@@ -19,7 +19,7 @@ public class Taxonomy {
 
     private Taxonomy() {
     }
-    private static String path = "D:\\_workspace\\peatranscriptome\\_data\\taxonomy";
+    private static String path = "D:\\_workspace\\peatranscriptome\\_data\\taxonomy_rs";
 
     synchronized public static void setSourcePath(String defaultpath) {
         Taxonomy.path = defaultpath;
@@ -72,7 +72,7 @@ public class Taxonomy {
 
     public int findCommonAncestor(Iterable<Integer> list) throws TaxonomyHierarchyException {
         final Iterator<Integer> it = list.iterator();
-        if (it.hasNext()) {
+        if (!it.hasNext()) {
             return 0;
         } else {
             final LinkedList<Integer> ancestors = defineAncestorsPath(it.next());
