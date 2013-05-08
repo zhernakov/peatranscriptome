@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+<xs:element name="experiment" type="experiment_type"/>
+<xs:complexType name="experiment_type">
+    <xs:sequence>
+        <xs:element name="title" maxOccurs="1">
+            <xs:annotation>
+                <xs:documentation>
+                    Unique experemnt name by which it can be selected in database.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="description" type="xs:string" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>
+                    Short description of the experiment.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="runs" type="runs_type">
+            <xs:annotation>
+                <xs:documentation>
+                    List of Runs included to experements.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="publications" type="publications_type" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>
+                    Publications related to experiment.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
+    </xs:sequence>    
+</xs:complexType>
+<xs:complexType name="runs_type">
+    <xs:sequence>
+        <xs:element name="run" type="run_type" minOccurs="1">
+            <xs:annotation>
+                <xs:documentation>
+                    One of existing experemental parts.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
+    </xs:sequence>
+</xs:complexType>
+<xs:complexType name="publications_type">
+    <xs:sequence>
+        <xs:element name="publication"/>
+    </xs:sequence>
+</xs:complexType>
+<xs:complexType name="run_type">
+    <xs:sequence>
+        <xs:element name="title" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>
+                    Title of this part unique inside of experiment.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="description" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>
+                    Description of this part of experiment.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="species" type="xs:unsignedInt">
+            <xs:annotation>
+                <xs:documentation>
+                    NCBI Taxonomy identificator (taxid) of used biological material.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="breed" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>
+                    Line, cultivare etc. if known.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="source" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>
+                    Features of used biological material.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="platform">
+            <xs:annotation>
+                <xs:documentation>
+                    Used sequencing platform/technology.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
+    </xs:sequence>
+</xs:complexType>
+                
+        
+</xs:schema>

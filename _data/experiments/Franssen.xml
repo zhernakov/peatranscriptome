@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<experiment
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xsi:noNamespaceSchemaLocation='experiments.xsd'>
+    <title>Franssen</title>
+    <description>
+        generated libraries from flowers, leaves, cotyledons, 
+        epi- and hypocotyl, and etiolated and light treated etiolated seedlings
+    </description>
+    <runs>
+        <run>
+            <title>COT</title>
+            <species>3888</species>
+            <source>cotyledons</source>
+            <platform>LS454</platform>
+        </run>
+    </runs>
+</experiment>
