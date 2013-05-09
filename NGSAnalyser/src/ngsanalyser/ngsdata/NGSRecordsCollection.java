@@ -1,5 +1,6 @@
 package ngsanalyser.ngsdata;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -21,6 +22,14 @@ public class NGSRecordsCollection implements NGSCollectable, NGSAddible{
             notify();
         }
     }
+
+    @Override
+    synchronized public void addNGSRecordsCollection(Collection<NGSRecord> records) {
+        if (!terminated) {
+            list.addAll(records);
+            notify();
+        }
+    }
     
     @Override
     synchronized public NGSRecord getNGSRecord() {
@@ -38,7 +47,7 @@ public class NGSRecordsCollection implements NGSCollectable, NGSAddible{
         }
     }
 
-    synchronized public int getNumber() {
+    public int getNumber() {
         return list.size();
     }
 }

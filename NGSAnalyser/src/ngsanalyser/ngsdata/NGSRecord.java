@@ -9,6 +9,7 @@ public class NGSRecord {
     private final String additionalinfo;
     private final String sequence;
     private final String quality;
+    private final int length;
     
     private BlastHits blasthits;
     private int taxid = -1;
@@ -21,6 +22,7 @@ public class NGSRecord {
         this.additionalinfo = additional;
         this.sequence = sequence;
         this.quality = quality;
+        this.length = sequence.length();
     }
 
     public NGSRecord(String description, String sequence, String quality) {
@@ -29,6 +31,7 @@ public class NGSRecord {
         additionalinfo = description.substring(gap + 1);
         this.sequence = sequence;
         this.quality = quality;
+        this.length = sequence.length();
     }
 
     public boolean isConnectionLost() {
@@ -64,6 +67,10 @@ public class NGSRecord {
         return quality;
     }
 
+    public Object getLength() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     public BlastHits getBLASTHits() {
         return blasthits;
     }
@@ -78,6 +85,25 @@ public class NGSRecord {
 
     public void setTaxonId(int taxid) {
         this.taxid = taxid;
+    }
+
+    public String composeDBInsertValues() {
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append("'")
+                .append(recordid)
+                .append("','")
+                .append(additionalinfo)
+                .append("','")
+                .append(sequence)
+                .append("','")
+                .append(quality)
+                .append("',")
+                .append(length)
+                .append(",")
+                .append(taxid);
+        
+        return builder.toString();
     }
 
 }

@@ -2,9 +2,9 @@ package ngsanalyser.processes.blaster;
 
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
-import ngsanalyser.processes.ProcessManager;
+import ngsanalyser.processes.ProcessesManager;
 
-public class BLASTManager extends ProcessManager {
+public class BLASTManager extends ProcessesManager {
     public BLASTManager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
         super(resultstorage, failedstorage, threadnumber);
     }
@@ -12,7 +12,7 @@ public class BLASTManager extends ProcessManager {
     @Override
     synchronized public void processRecord(NGSRecord record) {
         final BLASTQuery query = new BLASTQuery(this, record);
-        newRecordProcessing(query);
+        startNewThread(query);
     }
 
     @Override
@@ -23,7 +23,7 @@ public class BLASTManager extends ProcessManager {
             if (record.isConnectionLost()) {
                 record.resetConnectionFlag();
                 final BLASTQuery query = new BLASTQuery(this, record);
-                restartRecordProcessing(query);
+                restartThread(query);
             } else {
                 recordCanNotBeProcessed(record);
             }

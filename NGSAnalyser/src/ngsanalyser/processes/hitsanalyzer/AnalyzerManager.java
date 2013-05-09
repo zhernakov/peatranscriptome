@@ -2,9 +2,9 @@ package ngsanalyser.processes.hitsanalyzer;
 
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
-import ngsanalyser.processes.ProcessManager;
+import ngsanalyser.processes.ProcessesManager;
 
-public class AnalyzerManager extends ProcessManager {
+public class AnalyzerManager extends ProcessesManager {
     public AnalyzerManager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
         super(resultstorage, failedstorage, threadnumber);
     }
@@ -12,7 +12,7 @@ public class AnalyzerManager extends ProcessManager {
     @Override
     synchronized public void processRecord(NGSRecord record) {
         final AnalyzingThread process = new AnalyzingThread(this, record, 1e-25);
-        newRecordProcessing(process);
+        startNewThread(process);
     }
 
     @Override
@@ -20,7 +20,7 @@ public class AnalyzerManager extends ProcessManager {
         if (record.getTaxonId() == -1) {
             if (record.isConnectionLost()) {
                 record.resetConnectionFlag();
-                restartRecordProcessing(new AnalyzingThread(this, record, 1e-25));
+                restartThread(new AnalyzingThread(this, record, 1e-25));
             } else {
                 recordCanNotBeProcessed(record);
             }

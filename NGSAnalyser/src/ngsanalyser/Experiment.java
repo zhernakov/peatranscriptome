@@ -9,12 +9,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import ngsanalyser.exception.ParsingException;
+import ngsanalyser.ngsdata.NGSRecord;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -38,6 +37,8 @@ public class Experiment {
     private Map<String,Run> runs = new TreeMap<>();
     private List<String> publications = new LinkedList<>();
 
+    private Run selectedrun;
+    
     private Experiment() {
         
     }
@@ -61,6 +62,46 @@ public class Experiment {
     private void addPublication(String publication) {
         publications.add(publication);
     }
+    
+    public boolean setRun(String name) {
+        if (runs.containsKey(name)) {
+            this.selectedrun = runs.get(name);
+            return true;
+        }
+        return false;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public StringBuilder composeSequencesInsertQuery(List<NGSRecord> records) {
+        final StringBuilder builder = new StringBuilder();
+        final int runid = selectedrun.getDataBaseId();
+        
+        builder.append("INSERT INTO sequences ("
+                + "runid, readid, additional, sequence, quality, length, taxid"
+                + ") VALUES\n");
+        
+        for (final NGSRecord record : records) {
+            builder.append("(")
+                    .append(runid)
+                    .append(",")
+                    .append(record.composeDBInsertValues())
+                    .append("),\n");
+        }
+        
+        int length =builder.length();
+        builder.delete(runid, runid) .deleteCharAt(builder.length() - 2);
+        
+        return builder;
+    }
+    
+    
     
     public static class Run {
         private String  title;
@@ -99,6 +140,10 @@ public class Experiment {
 
         public String getTitle() {
             return title;
+        }
+
+        private int getDataBaseId() {
+            return 1;
         }
         
     }

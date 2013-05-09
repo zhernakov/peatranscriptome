@@ -7,14 +7,14 @@ import java.util.logging.Logger;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
 
-abstract public class ProcessManager {
+abstract public class ProcessesManager {
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private final NGSAddible resultstorage;
     private final NGSAddible failedstorage;
-    private final int threadnumber;
+    private int threadnumber;
     private int threadinwork = 0;
 
-    public ProcessManager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
+    public ProcessesManager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
         this.resultstorage = resultstorage;
         this.failedstorage = failedstorage;
         this.threadnumber = threadnumber;
@@ -22,8 +22,8 @@ abstract public class ProcessManager {
 
     abstract public void processRecord(NGSRecord record);
     abstract public void recordProcessed(NGSRecord record);
-    
-    synchronized protected void newRecordProcessing(Runnable thread) {
+
+    synchronized protected void startNewThread(Runnable thread) {
         try {
             while (threadinwork >= threadnumber) {
                 wait();
@@ -31,11 +31,11 @@ abstract public class ProcessManager {
             executor.execute(thread);
             ++threadinwork;
         } catch (InterruptedException ex) {
-            Logger.getLogger(ProcessManager.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ProcessesManager.class.getName()).log(Level.SEVERE, null, ex);
         }
     };
     
-    synchronized protected void restartRecordProcessing(Runnable thread) {
+    protected void restartThread(Runnable thread) {
         executor.execute(thread);
     }
     
@@ -52,8 +52,8 @@ abstract public class ProcessManager {
         failedstorage.addNGSRecord(record);
         --threadinwork;
     }
-    
-    synchronized public void shutdown() {
+
+    public void shutdown() {
         executor.shutdown();
     }
 }
