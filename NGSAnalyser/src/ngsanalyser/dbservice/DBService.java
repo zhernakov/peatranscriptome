@@ -5,22 +5,20 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import ngsanalyser.Experiment;
+import ngsanalyser.experiment.Experiment;
 import ngsanalyser.exception.NoConnectionException;
 
 public class DBService {
     public final static DBService INSTANCE = new DBService();
     
+    private final String databasename = "peatranscriptome";
+
     private Connection connection;
     
     private String url;
     private String user;
     private String password;
     
-    private final String databasename = "peatranscriptome";
-    
-    private Experiment experiment;
-
     private DBService() {
         
     }
@@ -31,49 +29,83 @@ public class DBService {
         this.password = password;
     }
     
-    public void setExperiment(Experiment experiment) throws SQLException, NoConnectionException {
-        this.experiment = experiment;
-        connect();
-        String id = getExperimentId();
-        if (id == null) {
-            addExperiment();
-            id = getExperimentId();
-        }
-        System.out.println(id);
+    private void connect() throws SQLException {
+        connection = DriverManager.getConnection("jdbc:mysql://" + url + "/" + databasename, user, password);
     }
     
-    public void connect() throws SQLException {
+    private synchronized ResultSet executeQuery(String query) throws SQLException {
         if (connection == null) {
-            connection = DriverManager.getConnection("jdbc:mysql://" + url + "/" + databasename, user, password);
-            connection.setSchema(databasename);
-            getExperimentId();
+            connect();
         }
-    }
-    
-    private String getExperimentId() throws SQLException{
-        final String query = "SELECT id FROM experiments WHERE title=\"" 
-                + experiment.getTitle() + "\";";
         final Statement statement = connection.createStatement();
-        final ResultSet result = statement.executeQuery(query);
+        return statement.executeQuery(query);
+    } 
+  
+    private synchronized boolean execute(String query) throws SQLException {
+        if (connection == null) {
+            connect();
+        }
+        final Statement statement = connection.createStatement();
+        return statement.execute(query);
+    }
+  
+    public void sendInsertQuery(StringBuilder query) throws SQLException, NoConnectionException {
+        System.out.println(query);
+    }
+
+    public String getExperimentId(String secretid, String title) throws SQLException {
+        final String query = "SELECT id FROM experiments WHERE "
+                + "secretid='" + secretid + "' AND "
+                + "title='" + title + "';";
+        
+        final ResultSet result = executeQuery(query);
         if (result.next()) {
             return result.getString("id");
         } else {
             return null;
         }
     }
-    
-    private void addExperiment() throws SQLException, NoConnectionException {
-        final String query = "INSERT INTO experiments (title, description) VALUES ('" +
-                experiment.getTitle() + "','" + experiment.getDescription() + "');";
-        System.out.println(query);
-        final Statement statement = connection.createStatement();
-        boolean executed = statement.execute(query);
-        if (executed) {
-            throw new NoConnectionException("");
+
+    public String addExperiment(String secretid, String title, String description) throws SQLException {
+        final String statement = "INSERT INTO experiments (secretid, title, description) VALUES ('"
+                + secretid + "', '"
+                + title + "', '"
+                + description + "');";
+        System.out.println(statement);
+        execute(statement);
+        return getExperimentId(secretid, title);
+    }
+
+    public String getRunId(String expdbid, String secretid, String title) throws SQLException {
+        final String query = "SELECT id FROM runs WHERE "
+                + "experimentid=" + expdbid + " AND "
+                + "secretid='" + secretid + "' AND "
+                + "title='" + title + "';";
+        
+        final ResultSet result = executeQuery(query);
+        if (result.next()) {
+            return result.getString("id");
+        } else {
+            return null;
         }
     }
 
-    public void sendInsertQuery(StringBuilder query) throws SQLException, NoConnectionException {
-        System.out.println(query);
+    public String addRun(
+            String expdbid, String secretid, String title, String description,
+            int species, String breed, String source, String platform) throws SQLException {
+        final String statement = "INSERT INTO runs ("
+                + "experimentid, secretid, title, description, species, breed, source, platform"
+                + ") VALUES ("
+                + expdbid + ", '"
+                + secretid + "', '"
+                + title + "', '"
+                + description + "', "
+                + species + ", '"
+                + breed + "', '"
+                + source + "', '"
+                + platform + "');";
+        System.out.println(statement);
+        execute(statement);
+        return getRunId(expdbid, secretid, title);
     }
 }

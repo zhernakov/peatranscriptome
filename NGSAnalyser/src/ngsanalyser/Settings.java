@@ -13,7 +13,7 @@ public class Settings {
     public String ngsfile;
 
     @Parameter(names= {"-u", "--url"}, description = "bd url", required = false)
-    public String url = "192.168.0.199:1981";
+    public String url = "193.218.141.85:1981";
 
     @Parameter(names= {"-l", "--login"}, description = "bd user", required = false)
     public String login = "alexander";

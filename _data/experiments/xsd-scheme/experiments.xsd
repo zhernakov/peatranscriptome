@@ -10,6 +10,13 @@ and open the template in the editor.
 <xs:element name="experiment" type="experiment_type"/>
 <xs:complexType name="experiment_type">
     <xs:sequence>
+        <xs:element name ="secretid" maxOccurs="1">
+            <xs:annotation>
+                <xs:documentation>
+                    Random symbols to minimaze same title error.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
         <xs:element name="title" maxOccurs="1">
             <xs:annotation>
                 <xs:documentation>
@@ -17,21 +24,21 @@ and open the template in the editor.
                 </xs:documentation>
             </xs:annotation>
         </xs:element>
-        <xs:element name="description" type="xs:string" minOccurs="0">
+        <xs:element name="description" type="xs:string" minOccurs="0" maxOccurs="1">
             <xs:annotation>
                 <xs:documentation>
                     Short description of the experiment.
                 </xs:documentation>
             </xs:annotation>
         </xs:element>
-        <xs:element name="runs" type="runs_type">
+        <xs:element name="runs" type="runs_type" maxOccurs="1">
             <xs:annotation>
                 <xs:documentation>
                     List of Runs included to experements.
                 </xs:documentation>
             </xs:annotation>
         </xs:element>
-        <xs:element name="publications" type="publications_type" minOccurs="0">
+        <xs:element name="publications" type="publications_type" minOccurs="0" maxOccurs="1">
             <xs:annotation>
                 <xs:documentation>
                     Publications related to experiment.
@@ -58,10 +65,17 @@ and open the template in the editor.
 </xs:complexType>
 <xs:complexType name="run_type">
     <xs:sequence>
+        <xs:element name="secretid">
+            <xs:annotation>
+                <xs:documentation>
+                    Random symbols to minimaze same title error.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:element>
         <xs:element name="title" minOccurs="0">
             <xs:annotation>
                 <xs:documentation>
-                    Title of this part unique inside of experiment.
+                    Title of this experiment part unique inside of experiment.
                 </xs:documentation>
             </xs:annotation>
         </xs:element>

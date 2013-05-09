@@ -3,7 +3,8 @@ package ngsanalyser.processes.databasestorager;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import ngsanalyser.Experiment;
+import ngsanalyser.experiment.Experiment;
+import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
 
@@ -15,8 +16,8 @@ public class DataBaseStorager implements NGSAddible {
 
     private final StoragerManager manager;
 
-    public DataBaseStorager(NGSAddible failedstorage, Experiment experiment) {
-        this.manager = new StoragerManager(failedstorage, experiment, 2);
+    public DataBaseStorager(NGSAddible failedstorage, Run run) {
+        this.manager = new StoragerManager(failedstorage, run, 2);
     }
     
     @Override

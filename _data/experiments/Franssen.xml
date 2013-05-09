@@ -2,7 +2,8 @@
 
 <experiment
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xsi:noNamespaceSchemaLocation='experiments.xsd'>
+    xsi:noNamespaceSchemaLocation='xsd-scheme/experiments.xsd'>
+    <secretid>lkjfds;alkfjv</secretid>
     <title>Franssen</title>
     <description>
         generated libraries from flowers, leaves, cotyledons, 
@@ -10,6 +11,7 @@
     </description>
     <runs>
         <run>
+            <secretid>slkjxvmllkeg</secretid>
             <title>COT</title>
             <species>3888</species>
             <source>cotyledons</source>
