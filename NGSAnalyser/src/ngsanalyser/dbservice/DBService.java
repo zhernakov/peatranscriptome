@@ -5,12 +5,22 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import ngsanalyser.exception.NoDataBaseRespondException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSRecord;
 
 public class DBService {
+    private static int getId(ResultSet result) throws SQLException {
+        if (result.next()) {
+            return result.getInt("id");
+        } else {
+            return -1;
+        }
+    }
+
     public final static DBService INSTANCE = new DBService();
     
     private final String databasename = "peatranscriptome";
@@ -34,91 +44,80 @@ public class DBService {
     private void connect() throws SQLException {
         connection = DriverManager.getConnection("jdbc:mysql://" + url + "/" + databasename, user, password);
     }
-    
-    private synchronized ResultSet executeQuery(String query) throws SQLException {
-        if (connection == null) {
-            connect();
+
+    private PreparedStatement getPreparedStatement(String template) throws SQLException, NoDataBaseRespondException {
+        try {
+            if (connection == null) {
+                connect();
+            }
+            return connection.prepareStatement(template);
+        } catch (SQLException ex) {
+            int errorcode = ex.getErrorCode();
+            if (errorcode < 2058 && errorcode > 1999) {
+                throw new NoDataBaseRespondException();
+            } else {
+                throw ex;
+            }
         }
-        final Statement statement = connection.createStatement();
+    }
+
+    public int getExperimentId(String secretid, String title) throws SQLException, NoDataBaseRespondException {
+        final String template = "SELECT id FROM experiments WHERE "
+                + "secretid = ? AND title = ?;";
+        final PreparedStatement statement = getPreparedStatement(template);
+        statement.setString(1, secretid);
+        statement.setString(2, title);
+
+        return getId(statement.executeQuery());
+    }
+
+    public int addExperiment(String secretid, String title, String description) throws SQLException, NoDataBaseRespondException {
+        final String template = "INSERT INTO experiments (secretid, title, description) "
+                + "VALUES (?, ?, ?);";
+        final PreparedStatement statement = getPreparedStatement(template);
+        statement.setString(1, secretid);
+        statement.setString(2, title);
+        statement.setString(3, description);
         
-        return statement.executeQuery(query);
-    } 
-  
-    private synchronized boolean execute(String query) throws SQLException {
-        if (connection == null) {
-            connect();
-        }
-        final Statement statement = connection.createStatement();
-        return statement.execute(query);
-    }
-
-    private PreparedStatement getPreparedStatement(String template) throws SQLException {
-        if (connection == null) {
-            connect();
-        }
-        return connection.prepareStatement(template);
-    }
-
-    public String getExperimentId(String secretid, String title) throws SQLException {
-        final String query = "SELECT id FROM experiments WHERE "
-                + "secretid='" + secretid + "' AND "
-                + "title='" + title + "';";
-        
-        final ResultSet result = executeQuery(query);
-        if (result.next()) {
-            return result.getString("id");
-        } else {
-            return null;
-        }
-    }
-
-    public String addExperiment(String secretid, String title, String description) throws SQLException {
-        final String statement = "INSERT INTO experiments (secretid, title, description) VALUES ('"
-                + secretid + "', '"
-                + title + "', '"
-                + description + "');";
-        System.out.println(statement);
-        execute(statement);
+        statement.executeUpdate();
         return getExperimentId(secretid, title);
     }
 
-    public String getRunId(String expdbid, String secretid, String title) throws SQLException {
-        final String query = "SELECT id FROM runs WHERE "
-                + "experimentid=" + expdbid + " AND "
-                + "secretid='" + secretid + "' AND "
-                + "title='" + title + "';";
-        
-        final ResultSet result = executeQuery(query);
-        if (result.next()) {
-            return result.getString("id");
-        } else {
-            return null;
-        }
+    public int getRunId(int expdbid, String secretid, String title) throws SQLException, NoDataBaseRespondException {
+        final String template = "SELECT id FROM runs WHERE "
+                + "experimentid = ? AND secretid = ? AND title = ?;";
+        final PreparedStatement statement = getPreparedStatement(template);
+        statement.setInt(1, expdbid);
+        statement.setString(2, secretid);
+        statement.setString(3, title);
+
+        return getId(statement.executeQuery());
     }
 
-    public String addRun(
-            String expdbid, String secretid, String title, String description,
-            int species, String breed, String source, String platform) throws SQLException {
-        final String statement = "INSERT INTO runs ("
+    public int addRun(
+            int expdbid, String secretid, String title, String description,
+            int species, String breed, String source, String platform) throws SQLException, NoDataBaseRespondException {
+        final String template = "INSERT INTO runs ("
                 + "experimentid, secretid, title, description, species, breed, source, platform"
-                + ") VALUES ("
-                + expdbid + ", '"
-                + secretid + "', '"
-                + title + "', '"
-                + description + "', "
-                + species + ", '"
-                + breed + "', '"
-                + source + "', '"
-                + platform + "');";
-        System.out.println(statement);
-        execute(statement);
+                + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        final PreparedStatement statement = getPreparedStatement(template);
+        statement.setInt(1, expdbid);
+        statement.setString(2, secretid);
+        statement.setString(3, title);
+        statement.setString(4, description);
+        statement.setInt(5, species);
+        statement.setString(6, breed);
+        statement.setString(7, source);
+        statement.setString(8, platform);
+
+        statement.executeUpdate();
         return getRunId(expdbid, secretid, title);
     }
   
-    public void addSequences(Run run, List<NGSRecord> records) throws SQLException {
+    public void addSequences(Run run, List<NGSRecord> records) throws SQLException, NoDataBaseRespondException {
         final String template = "INSERT INTO sequences "
                 + "(runid, readid, additional, sequence, quality, length, taxid) "
-                + "VALUES (" + run.rundbid + ", ?, ?, ?, ?, ?, ?)";
+                + "VALUES (" + run.db_runid + ", ?, ?, ?, ?, ?, ?)";
         final PreparedStatement statement = getPreparedStatement(template);
        
         for (final NGSRecord record : records) {
@@ -126,10 +125,23 @@ public class DBService {
             statement.setString(2, record.additionalinfo);
             statement.setString(3, record.sequence);
             statement.setString(4, record.quality);
-            statement.setString(5, Integer.toString(record.length));
-            statement.setString(6, Integer.toString(record.getTaxonId()));
+            statement.setInt(5, record.length);
+            statement.setInt(6, record.getTaxonId());
             statement.addBatch();
         }
         statement.executeBatch();
+    }
+
+    public Set<String> getStoragedSequences(Run run) throws NoDataBaseRespondException, SQLException {
+        final Set<String> set = new TreeSet<>();
+        final String template = "SELECT readid FROM sequences WHERE runid = ?;";
+        final PreparedStatement statement = getPreparedStatement(template);
+        statement.setInt(1, run.db_runid);
+        final ResultSet result = statement.executeQuery();
+
+        while (result.next()) {
+            set.add(result.getString("readid"));
+        }
+        return set;
     }
 }

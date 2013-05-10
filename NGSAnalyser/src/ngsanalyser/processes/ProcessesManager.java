@@ -51,9 +51,19 @@ abstract public class ProcessesManager {
     synchronized protected void recordCanNotBeProcessed(NGSRecord record) {
         failedstorage.addNGSRecord(record);
         --threadinwork;
+        notify();
     }
 
     public void shutdown() {
+        while (threadinwork != 0) {
+            try {
+                wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ProcessesManager.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         executor.shutdown();
+        resultstorage.terminate();
+        failedstorage.terminate();
     }
 }

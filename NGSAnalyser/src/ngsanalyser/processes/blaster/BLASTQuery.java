@@ -1,7 +1,7 @@
 package ngsanalyser.processes.blaster;
 
 import ngsanalyser.exception.NoConnectionException;
-import ngsanalyser.exception.ParsingException;
+import ngsanalyser.exception.ParseException;
 import ngsanalyser.ncbiservice.NCBIService;
 import ngsanalyser.ngsdata.NGSRecord;
 
@@ -22,7 +22,7 @@ public class BLASTQuery implements Runnable {
             record.setBLASTHits(NCBIService.INSTANCE.blast(record.sequence));
         } catch (NoConnectionException ex) {
             record.connectionLost();
-        } catch (ParsingException ex) {
+        } catch (ParseException ex) {
             record.loqError(ex);
         } catch (Exception ex) {
             record.loqError(ex);

@@ -13,6 +13,7 @@ public class NGSRecordsCollection implements NGSCollectable, NGSAddible{
     @Override
     synchronized public void terminate() {
         terminated = true;
+        notify();
     }
     
     @Override

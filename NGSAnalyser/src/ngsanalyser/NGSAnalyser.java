@@ -7,7 +7,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import ngsanalyser.dbservice.DBService;
 import ngsanalyser.exception.NoConnectionException;
-import ngsanalyser.exception.ParsingException;
+import ngsanalyser.exception.NoDataBaseRespondException;
+import ngsanalyser.exception.ParseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.processes.blaster.BLASTer;
 import ngsanalyser.processes.hitsanalyzer.HitsAnalyzer;
@@ -19,7 +20,7 @@ import ngsanalyser.taxonomy.TaxonomyException;
 
 public class NGSAnalyser {
 
-    public static void main(String[] args) throws NGSFileException, InterruptedException, TaxonomyException, ParsingException, IOException, SQLException, NoConnectionException {
+    public static void main(String[] args) throws NGSFileException, InterruptedException, TaxonomyException, ParseException, IOException, SQLException, NoConnectionException, NoDataBaseRespondException {
         final Settings settings = new Settings();
         new JCommander(settings, args);
         
@@ -36,11 +37,11 @@ public class NGSAnalyser {
         final NGSRecordsCollection blaststorage = new NGSRecordsCollection();
         final NGSRecordsCollection failedstorage = new NGSRecordsCollection();
         
-        final BLASTer blaster = new BLASTer(fastqfile, blaststorage, failedstorage, 14);
+        final BLASTer blaster = new BLASTer(fastqfile, blaststorage, failedstorage, run, 20);
 
         final DataBaseStorager storager = new DataBaseStorager(failedstorage, run);
         
-        final HitsAnalyzer analyzer = new HitsAnalyzer(blaststorage, storager, failedstorage, 20);
+        final HitsAnalyzer analyzer = new HitsAnalyzer(blaststorage, storager, failedstorage, 15);
         
         blaster.startBLAST();
         analyzer.startAnalysis();

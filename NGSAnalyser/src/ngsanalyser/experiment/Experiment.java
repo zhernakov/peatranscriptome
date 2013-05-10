@@ -14,13 +14,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import ngsanalyser.dbservice.DBService;
-import ngsanalyser.exception.ParsingException;
+import ngsanalyser.exception.NoDataBaseRespondException;
+import ngsanalyser.exception.ParseException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class Experiment {
-    public static Experiment createInstance(String path) throws FileNotFoundException, IOException, ParsingException {
+    public static Experiment createInstance(String path) throws FileNotFoundException, IOException, ParseException {
         try {
             final SAXParserFactory parserfactory = SAXParserFactory.newInstance();
             final SAXParser parser = parserfactory.newSAXParser();
@@ -29,7 +30,7 @@ public class Experiment {
             parser.parse(is, handler);
             return handler.experiment;
         } catch (ParserConfigurationException | SAXException ex) {
-            throw new ParsingException("Experiment file is corupted");
+            throw new ParseException("Experiment file is corupted or data base does not respond", ex, false, true);
         }
     }
 
@@ -38,17 +39,17 @@ public class Experiment {
     private final Map<String,Run> runs = new TreeMap<>();
     private final List<String> publications = new LinkedList<>();
 
-    public final String expdbid;
+    public final int expdbid;
     
-    private Experiment(String secretid, String title, String description) throws SQLException {
+    private Experiment(String secretid, String title, String description) throws SQLException, NoDataBaseRespondException {
         this.title = title;
         this.description = description;
         this.expdbid = getExpDbId(secretid);
     }
 
-    private String getExpDbId(String secretid) throws SQLException {
-        String dbid = DBService.INSTANCE.getExperimentId(secretid, title);
-        if (dbid == null) {
+    private int getExpDbId(String secretid) throws SQLException, NoDataBaseRespondException {
+        int dbid = DBService.INSTANCE.getExperimentId(secretid, title);
+        if (dbid == -1) {
             dbid = DBService.INSTANCE.addExperiment(secretid, title, description);
         }
         return dbid;
@@ -78,7 +79,7 @@ public class Experiment {
                 case "publications":
                     try {
                         experiment = new Experiment(secretid, title, description);
-                    } catch (SQLException ex) {
+                    } catch (SQLException | NoDataBaseRespondException ex) {
                         throw new SAXException(ex);
                     }
                     secretid = null;
@@ -135,10 +136,17 @@ public class Experiment {
                         newrun = new Run(
                         experiment.expdbid, secretid, title, description,
                         Integer.parseInt(species) , breed, source, platform);
-                    } catch (SQLException ex) {
+                    } catch (SQLException | NoDataBaseRespondException ex) {
                         throw new SAXException(ex);
                     }
                     experiment.runs.put(title, newrun);
+                    secretid = null;
+                    title = null;
+                    description = null;
+                    species = null;
+                    breed = null;
+                    source = null;
+                    platform = null;
                     break;
                 case "publication":
                     experiment.publications.add(builder.toString());

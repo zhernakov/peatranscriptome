@@ -12,7 +12,7 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import ngsanalyser.exception.NoConnectionException;
-import ngsanalyser.exception.ParsingException;
+import ngsanalyser.exception.ParseException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -22,7 +22,7 @@ public class NCBIQueryService {
     private static final String elink = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi";
     private final int waitinterval = 10000;
 
-    public Set<Integer> defineTaxonIds(Iterable<String> ids) throws NoConnectionException, ParsingException {
+    public Set<Integer> defineTaxonIds(Iterable<String> ids) throws NoConnectionException, ParseException {
         try {
             final String url = composeQueryStatement(ids);
             final InputStream in = openURL(new URL(url));
@@ -31,7 +31,7 @@ public class NCBIQueryService {
         } catch (IOException ex) {
             throw new NoConnectionException();
         } catch (Exception ex) {
-            throw new ParsingException(ex.getMessage());
+            throw new ParseException(ex.getMessage());
         }
     }
 

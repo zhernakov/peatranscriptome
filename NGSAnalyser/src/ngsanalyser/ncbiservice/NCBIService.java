@@ -6,7 +6,7 @@ import java.util.Collection;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import ngsanalyser.exception.NoConnectionException;
-import ngsanalyser.exception.ParsingException;
+import ngsanalyser.exception.ParseException;
 import ngsanalyser.ncbiservice.blast.BlastHits;
 import ngsanalyser.ncbiservice.blast.BlastOutputHandler;
 import org.biojava3.ws.alignment.qblast.BlastProgramEnum;
@@ -34,7 +34,7 @@ public class NCBIService {
         alignprop.setBlastDatabase("nr");
     }
     
-    public BlastHits blast(String sequence) throws NoConnectionException, ParsingException {
+    public BlastHits blast(String sequence) throws NoConnectionException, ParseException {
         timer.start();
         final InputStream is = sendBLASTQuery(sequence);
         return parseBLASTResult(is);
@@ -52,7 +52,7 @@ public class NCBIService {
         }
     }
     
-    private BlastHits parseBLASTResult(InputStream is) throws NoConnectionException, ParsingException {
+    private BlastHits parseBLASTResult(InputStream is) throws NoConnectionException, ParseException {
         try {
             final BlastOutputHandler handler = new BlastOutputHandler();
             final SAXParser parser = parserfactory.newSAXParser();
@@ -61,7 +61,7 @@ public class NCBIService {
         } catch (IOException ex) {
             throw new NoConnectionException(ex.getMessage());
         } catch (Exception ex) {
-            throw new ParsingException(ex.getMessage());
+            throw new ParseException(ex.getMessage());
         }
     }
     
@@ -69,7 +69,7 @@ public class NCBIService {
         return null;
     }
 
-    public Collection<Integer> getTaxIdsSet(Iterable<String> seqids) throws NoConnectionException, ParsingException {
+    public Collection<Integer> getTaxIdsSet(Iterable<String> seqids) throws NoConnectionException, ParseException {
         timer.start();
         return ncbiservice.defineTaxonIds(seqids);
     }

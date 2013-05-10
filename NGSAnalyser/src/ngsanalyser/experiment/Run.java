@@ -2,6 +2,7 @@ package ngsanalyser.experiment;
 
 import java.sql.SQLException;
 import ngsanalyser.dbservice.DBService;
+import ngsanalyser.exception.NoDataBaseRespondException;
 
 public class Run {
     private final String title;
@@ -11,23 +12,23 @@ public class Run {
     private final String source;
     private final String platform;
     
-    public final String rundbid;
+    public final int db_runid;
 
     public Run(
-            String expdbid, String secretid, String title, String description,
-            int species, String breed, String source, String platform) throws SQLException {
+            int expdbid, String secretid, String title, String description,
+            int species, String breed, String source, String platform) throws SQLException, NoDataBaseRespondException {
         this.title = title;
         this.description = description;
         this.species = species;
         this.breed = breed;
         this.source = source;
         this.platform = platform;
-        this.rundbid = getRunDbId(expdbid, secretid);
+        this.db_runid = getRunDbId(expdbid, secretid);
     }
 
-    private String getRunDbId(String expdbid, String secretid) throws SQLException {
-        String dbid = DBService.INSTANCE.getRunId(expdbid, secretid, title);
-        if (dbid == null) {
+    private int getRunDbId(int expdbid, String secretid) throws SQLException, NoDataBaseRespondException {
+        int dbid = DBService.INSTANCE.getRunId(expdbid, secretid, title);
+        if (dbid == -1) {
             dbid = DBService.INSTANCE.addRun(expdbid, secretid, title, description, species, breed, source, platform);
         }
         return dbid;

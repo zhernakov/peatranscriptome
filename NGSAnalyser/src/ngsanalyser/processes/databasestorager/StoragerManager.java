@@ -5,10 +5,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ngsanalyser.experiment.Experiment;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
+import ngsanalyser.processes.ProcessesManager;
 
 class StoragerManager {
     private final ExecutorService executor = Executors.newCachedThreadPool();
@@ -35,7 +35,15 @@ class StoragerManager {
     }
 
     synchronized void terminate() {
+        while (threadinwork != 0) {
+            try {
+                wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ProcessesManager.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         executor.shutdown();
+        failedstorage.terminate();
     }
 
     synchronized void insertCompleted() {
@@ -48,6 +56,4 @@ class StoragerManager {
         --threadinwork;
         notify();
     }
-    
-   
 }

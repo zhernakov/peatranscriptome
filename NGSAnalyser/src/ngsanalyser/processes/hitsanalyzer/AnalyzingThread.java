@@ -2,7 +2,7 @@ package ngsanalyser.processes.hitsanalyzer;
 
 import java.util.Collection;
 import ngsanalyser.exception.NoConnectionException;
-import ngsanalyser.exception.ParsingException;
+import ngsanalyser.exception.ParseException;
 import ngsanalyser.ncbiservice.NCBIService;
 import ngsanalyser.ncbiservice.blast.DBID;
 import ngsanalyser.ngsdata.NGSRecord;
@@ -34,7 +34,7 @@ public class AnalyzingThread implements Runnable {
             record.setTaxonId(cmntaxid);
         } catch (NoConnectionException ex) {
             record.connectionLost();
-        } catch (ParsingException | TaxonomyHierarchyException ex) {
+        } catch (ParseException | TaxonomyHierarchyException ex) {
             record.loqError(ex);
         } catch (Exception ex) {
             record.loqError(ex);

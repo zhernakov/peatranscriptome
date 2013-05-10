@@ -17,5 +17,12 @@
             <source>cotyledons</source>
             <platform>LS454</platform>
         </run>
+        <run>
+            <secretid>lsjveldi78ese</secretid>
+            <title>EPI</title>
+            <species>3888</species>
+            <source>epicotyl</source>
+            <platform>LS454</platform>
+        </run>
     </runs>
 </experiment>

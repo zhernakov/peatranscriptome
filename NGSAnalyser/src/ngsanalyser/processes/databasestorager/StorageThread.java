@@ -2,9 +2,8 @@ package ngsanalyser.processes.databasestorager;
 
 import java.sql.SQLException;
 import java.util.List;
-import ngsanalyser.experiment.Experiment;
 import ngsanalyser.dbservice.DBService;
-import ngsanalyser.exception.NoConnectionException;
+import ngsanalyser.exception.NoDataBaseRespondException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSRecord;
 
@@ -24,10 +23,9 @@ class StorageThread implements Runnable {
         try {
             DBService.INSTANCE.addSequences(run, records);
             manager.insertCompleted();
-        } catch (SQLException ex) {
+        } catch (SQLException | NoDataBaseRespondException ex) {
             manager.insertFailed(records, ex);
             System.err.println(ex);
         }
     }
-    
 }
