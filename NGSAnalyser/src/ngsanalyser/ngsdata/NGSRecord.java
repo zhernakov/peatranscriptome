@@ -5,11 +5,11 @@ import java.util.Map;
 import ngsanalyser.ncbiservice.blast.BlastHits;
 
 public class NGSRecord {
-    private final String recordid;
-    private final String additionalinfo;
-    private final String sequence;
-    private final String quality;
-    private final int length;
+    public final String recordid;
+    public final String additionalinfo;
+    public final String sequence;
+    public final String quality;
+    public final int length;
     
     private BlastHits blasthits;
     private int taxid = -1;
@@ -23,6 +23,7 @@ public class NGSRecord {
         this.sequence = sequence;
         this.quality = quality;
         this.length = sequence.length();
+        //TODO check if lenghts of sequences and quality strings are same
     }
 
     public NGSRecord(String description, String sequence, String quality) {
@@ -51,28 +52,8 @@ public class NGSRecord {
         logger.append("\n");
     }
     
-    public String getId() {
-        return recordid;
-    }
-
-    public String getAdditional() {
-        return additionalinfo;
-    }
-
-    public String getSequence() {
-        return sequence;
-    }
-
-    public String getQuality() {
-        return quality;
-    }
-
-    public Object getLength() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     public BlastHits getBLASTHits() {
-        return blasthits;
+        return  blasthits;
     }
   
     public int getTaxonId() {
@@ -86,24 +67,4 @@ public class NGSRecord {
     public void setTaxonId(int taxid) {
         this.taxid = taxid;
     }
-
-    public String composeDBInsertValues() {
-        final StringBuilder builder = new StringBuilder();
-
-        builder.append("'")
-                .append(recordid)
-                .append("','")
-                .append(additionalinfo)
-                .append("','")
-                .append(sequence)
-                .append("','")
-                .append(quality)
-                .append("',")
-                .append(length)
-                .append(",")
-                .append(taxid);
-        
-        return builder.toString();
-    }
-
 }

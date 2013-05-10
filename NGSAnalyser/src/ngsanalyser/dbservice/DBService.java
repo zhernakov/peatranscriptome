@@ -2,11 +2,13 @@ package ngsanalyser.dbservice;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import ngsanalyser.experiment.Experiment;
-import ngsanalyser.exception.NoConnectionException;
+import java.util.List;
+import ngsanalyser.experiment.Run;
+import ngsanalyser.ngsdata.NGSRecord;
 
 public class DBService {
     public final static DBService INSTANCE = new DBService();
@@ -38,6 +40,7 @@ public class DBService {
             connect();
         }
         final Statement statement = connection.createStatement();
+        
         return statement.executeQuery(query);
     } 
   
@@ -48,9 +51,12 @@ public class DBService {
         final Statement statement = connection.createStatement();
         return statement.execute(query);
     }
-  
-    public void sendInsertQuery(StringBuilder query) throws SQLException, NoConnectionException {
-        System.out.println(query);
+
+    private PreparedStatement getPreparedStatement(String template) throws SQLException {
+        if (connection == null) {
+            connect();
+        }
+        return connection.prepareStatement(template);
     }
 
     public String getExperimentId(String secretid, String title) throws SQLException {
@@ -107,5 +113,23 @@ public class DBService {
         System.out.println(statement);
         execute(statement);
         return getRunId(expdbid, secretid, title);
+    }
+  
+    public void addSequences(Run run, List<NGSRecord> records) throws SQLException {
+        final String template = "INSERT INTO sequences "
+                + "(runid, readid, additional, sequence, quality, length, taxid) "
+                + "VALUES (" + run.rundbid + ", ?, ?, ?, ?, ?, ?)";
+        final PreparedStatement statement = getPreparedStatement(template);
+       
+        for (final NGSRecord record : records) {
+            statement.setString(1, record.recordid);
+            statement.setString(2, record.additionalinfo);
+            statement.setString(3, record.sequence);
+            statement.setString(4, record.quality);
+            statement.setString(5, Integer.toString(record.length));
+            statement.setString(6, Integer.toString(record.getTaxonId()));
+            statement.addBatch();
+        }
+        statement.executeBatch();
     }
 }

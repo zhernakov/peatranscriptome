@@ -16,11 +16,10 @@ public class BLASTQuery implements Runnable {
 
     @Override
     public void run() {
-        final String id = record.getId();
-        System.out.println("Blast for " + id + " started.");
+        System.out.println("Blast for " + record.recordid + " started.");
 
         try {
-            record.setBLASTHits(NCBIService.INSTANCE.blast(record.getSequence()));
+            record.setBLASTHits(NCBIService.INSTANCE.blast(record.sequence));
         } catch (NoConnectionException ex) {
             record.connectionLost();
         } catch (ParsingException ex) {
@@ -29,7 +28,7 @@ public class BLASTQuery implements Runnable {
             record.loqError(ex);
         } finally {
             manager.recordProcessed(record);
-            System.out.println("Blast for " + id + " finished.");
+            System.out.println("Blast for " + record.recordid + " finished.");
         }
     }
 }

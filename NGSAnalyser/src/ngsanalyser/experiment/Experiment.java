@@ -10,14 +10,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import ngsanalyser.dbservice.DBService;
 import ngsanalyser.exception.ParsingException;
-import ngsanalyser.ngsdata.NGSRecord;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -36,33 +33,25 @@ public class Experiment {
         }
     }
 
-    private static String getExpDbId(String secretid, String title, String description) throws SQLException {
+    public final String title;
+    public final String description;
+    private final Map<String,Run> runs = new TreeMap<>();
+    private final List<String> publications = new LinkedList<>();
+
+    public final String expdbid;
+    
+    private Experiment(String secretid, String title, String description) throws SQLException {
+        this.title = title;
+        this.description = description;
+        this.expdbid = getExpDbId(secretid);
+    }
+
+    private String getExpDbId(String secretid) throws SQLException {
         String dbid = DBService.INSTANCE.getExperimentId(secretid, title);
         if (dbid == null) {
             dbid = DBService.INSTANCE.addExperiment(secretid, title, description);
         }
         return dbid;
-    }
-    
-    private final String title;
-    private final String description;
-    private final Map<String,Run> runs = new TreeMap<>();
-    private final List<String> publications = new LinkedList<>();
-
-    private final String expdbid;
-    
-    private Experiment(String secretid, String title, String description) throws SQLException {
-        this.title = title;
-        this.description = description;
-        this.expdbid = getExpDbId(secretid, title, description);
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getDescription() {
-        return description;
     }
     
     public Run getRun(String title) {

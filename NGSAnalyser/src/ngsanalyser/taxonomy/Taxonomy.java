@@ -73,7 +73,7 @@ public class Taxonomy {
     public int findCommonAncestor(Iterable<Integer> list) throws TaxonomyHierarchyException {
         final Iterator<Integer> it = list.iterator();
         if (!it.hasNext()) {
-            return 0;
+            return 1;
         } else {
             final LinkedList<Integer> ancestors = defineAncestorsPath(it.next());
             while (it.hasNext()) {

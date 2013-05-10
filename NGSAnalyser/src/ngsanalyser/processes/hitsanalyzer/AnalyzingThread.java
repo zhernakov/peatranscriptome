@@ -22,11 +22,10 @@ public class AnalyzingThread implements Runnable {
 
     @Override
     public void run() {
-        final String id = record.getId();
-        System.out.println("Hits analysis for " + id + " started.");
+        System.out.println("Hits analysis for " + record.recordid + " started.");
         
         try {
-            int cmntaxid = 0;
+            int cmntaxid = 1;
             final Collection<String> seqids = record.getBLASTHits().getSeqIdsSet(DBID.gi, criticalEvalue);
             if (!seqids.isEmpty()) {
                 final Collection<Integer> taxids = NCBIService.INSTANCE.getTaxIdsSet(seqids);
@@ -41,7 +40,7 @@ public class AnalyzingThread implements Runnable {
             record.loqError(ex);
         } finally {
             manager.recordProcessed(record);
-            System.out.println("Hits analysis for " + id + " finished. Common ancestor - " + record.getTaxonId());
+            System.out.println("Hits analysis for " + record.recordid + " finished. Common ancestor - " + record.getTaxonId());
         }
     }
 }

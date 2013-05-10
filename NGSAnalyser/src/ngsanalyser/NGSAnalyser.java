@@ -29,21 +29,21 @@ public class NGSAnalyser {
         final Run run = experiment.getRun(settings.run);
         
         
-//        Taxonomy.loadSource();
-// 
-//        
-//        final NGSFile fastqfile = NGSFile.NGSFileFactory(settings.ngsfile);
-//        final NGSRecordsCollection blaststorage = new NGSRecordsCollection();
-//        final NGSRecordsCollection failedstorage = new NGSRecordsCollection();
-//        
-//        final BLASTer blaster = new BLASTer(fastqfile, blaststorage, failedstorage, 14);
-//
-//        final DataBaseStorager storager = new DataBaseStorager(failedstorage, run);
-//        
-//        final HitsAnalyzer analyzer = new HitsAnalyzer(blaststorage, storager, failedstorage, 20);
-//        
-//        blaster.startBLAST();
-//        analyzer.startAnalysis();
+        Taxonomy.loadSource();
+ 
+        
+        final NGSFile fastqfile = NGSFile.NGSFileFactory(settings.ngsfile);
+        final NGSRecordsCollection blaststorage = new NGSRecordsCollection();
+        final NGSRecordsCollection failedstorage = new NGSRecordsCollection();
+        
+        final BLASTer blaster = new BLASTer(fastqfile, blaststorage, failedstorage, 14);
+
+        final DataBaseStorager storager = new DataBaseStorager(failedstorage, run);
+        
+        final HitsAnalyzer analyzer = new HitsAnalyzer(blaststorage, storager, failedstorage, 20);
+        
+        blaster.startBLAST();
+        analyzer.startAnalysis();
         
     }
 }

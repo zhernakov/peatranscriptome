@@ -22,13 +22,11 @@ class StorageThread implements Runnable {
     @Override
     public void run() {
         try {
-            final StringBuilder query = run.composeSequencesInsertQuery(records);
-            DBService.INSTANCE.sendInsertQuery(query);
+            DBService.INSTANCE.addSequences(run, records);
             manager.insertCompleted();
         } catch (SQLException ex) {
             manager.insertFailed(records, ex);
-        } catch (NoConnectionException ex) {
-            manager.insertFailed(records, ex);
+            System.err.println(ex);
         }
     }
     
