@@ -21,9 +21,9 @@ class BLASTQuery implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("BLAST for read " + record.recordid + " started");
+//            System.out.println("BLAST for read " + record.recordid + " started");
             record.setBLASTHits(NCBIService.INSTANCE.blast(record.sequence));
-            System.out.println("BLAST for read " + record.recordid + " finished successfully");
+//            System.out.println("BLAST for read " + record.recordid + " finished successfully");
             processor.threadSuccessfullyFinished(this);
         } catch (Exception ex) {
             Logger.getLogger(BLASTQuery.class.getName()).log(Level.SEVERE, null, ex);

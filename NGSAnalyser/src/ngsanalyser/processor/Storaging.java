@@ -10,7 +10,7 @@ public class Storaging implements Runnable {
     private final List<NGSRecord> records;
     private final Run run;
     
-    private int count = 0;
+    private static int count = 0;
     
     Storaging(Storager processor, List<NGSRecord> records, Run run) {
         this.processor = processor;
@@ -22,9 +22,9 @@ public class Storaging implements Runnable {
     public void run() {
         int n = ++count;
         try {
-            System.out.println("Storage operation " + n + " started");
+//            System.out.println("Storage operation " + n + " started");
             DBService.INSTANCE.addSequences(run, records);
-            System.out.println("Storage operation " + n + " finished");
+//            System.out.println("Storage operation " + n + " finished");
             processor.insertCompleted(this);
         } catch (Exception ex) {
             System.out.println("Storage operation " + n + " failed");

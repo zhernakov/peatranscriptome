@@ -4,6 +4,8 @@ import ngsanalyser.experiment.Experiment;
 import com.beust.jcommander.JCommander;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ngsanalyser.dbservice.DBService;
 import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.exception.NoDataBaseRespondException;
@@ -30,8 +32,23 @@ public class NGSAnalyser {
 
         final NGSFile fastqfile = NGSFile.NGSFileFactory(settings.ngsfile);
 
-        Processing pr = new Processing(run, fastqfile);
+        final Processing pr = new Processing(run, fastqfile);
         pr.startProcessing();
+        
+        (new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                while (true) {
+                    pr.printMeanWaitingTime();
+                    try {
+                        Thread.sleep(20000);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(NGSAnalyser.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        })).start();
         
 //        final NGSFile fastqfile = NGSFile.NGSFileFactory(settings.ngsfile);
 //        final NGSRecordsCollection blaststorage = new NGSRecordsCollection();

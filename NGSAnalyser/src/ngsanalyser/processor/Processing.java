@@ -29,20 +29,43 @@ public class Processing {
         stored = DBService.INSTANCE.getStoragedSequences(run);
         
         storager = new Storager(tmpstorage, failedstorage, 2, run);
-        analyzer = new HitsAnalyzer(storager, failedstorage, 10);
-        blaster = new BLASTer(analyzer, failedstorage, 15);
+        analyzer = new HitsAnalyzer(storager, failedstorage, 40);
+        blaster = new BLASTer(analyzer, failedstorage, 120);
     }
-
+    
+    private boolean isRecordStored(String id) {
+        for (final String storedid : stored) {
+            if (storedid.equals(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public void startProcessing() {
         (new Thread(new Runnable() {
             @Override
             public void run() {
                 NGSRecord record;
                 while ((record = source.getNGSRecord()) != null) {
-                    blaster.addNGSRecord(record);
+                    if (!isRecordStored(record.recordid)) {
+                        blaster.addNGSRecord(record);
+                    }
                 }
                 blaster.terminate();
             }
         })).start();
+    }
+    
+    public void printMeanWaitingTime() {
+        System.out.println("Blaster:      " + blaster.meanWaitingTime());
+        System.out.println("HitsAnalyzer: " + analyzer.meanWaitingTime());
+        System.out.println("Storager:     " + storager.meanWaitingTime());
+        final Runtime r = Runtime.getRuntime();
+        System.out.println("free memory: " + r.freeMemory() 
+                + "\t total memory: " + r.totalMemory() 
+                + "\t maximal memery: " + r.maxMemory());
+        System.out.println(1. - (double)r.freeMemory() / r.totalMemory());
+       
     }
 }

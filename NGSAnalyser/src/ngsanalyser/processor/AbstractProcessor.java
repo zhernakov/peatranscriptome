@@ -15,6 +15,11 @@ public abstract class AbstractProcessor implements NGSAddible {
     private final ExecutorService executor = Executors.newCachedThreadPool();
     private final List<Runnable> threads = new LinkedList<>();
 
+    private final int waitingsize = 20;
+    private final long[] waiting = new long[waitingsize];
+    private int waitingcursor = 0;
+    private int startedthreadcount = 0;
+
     private final NGSAddible resultstorage;
     private final NGSAddible failedstorage;
 
@@ -29,12 +34,14 @@ public abstract class AbstractProcessor implements NGSAddible {
     
     protected synchronized void startNewThread(Runnable thread) {
         try {
+            long start = System.nanoTime();
             while (threadinwork >= threadnumber) {
                 wait();
             }
             executor.execute(thread);
             threads.add(thread);
             ++threadinwork;
+            addWaitingTime(System.nanoTime() - start);
         } catch (InterruptedException ex) {
             //TODO
             Logger.getLogger(ProcessesManager.class.getName()).log(Level.SEVERE, null, ex);
@@ -85,5 +92,23 @@ public abstract class AbstractProcessor implements NGSAddible {
     @Override
     public int getNumber() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void addWaitingTime(long t) {
+        waiting[waitingcursor] = t;
+        waitingcursor = (waitingcursor + 1) % waitingsize;
+        ++startedthreadcount;
+    }
+    
+    public long meanWaitingTime() {
+        int number = startedthreadcount / waitingsize > 0 ? waitingsize : startedthreadcount;
+        if (number == 0) {
+            return 0;
+        }
+        long sum = 0;
+        for (int i = 0; i < number; ++i) {
+            sum += this.waiting[i];
+        }
+        return sum / number;
     }
 }

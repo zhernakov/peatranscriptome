@@ -26,7 +26,7 @@ public class HitsScan implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("HitAnalysis for read " + record.recordid + " started");
+//            System.out.println("HitAnalysis for read " + record.recordid + " started");
             int cmntaxid = 1;
             final Collection<String> seqids = record.getBLASTHits().getSeqIdsSet(DBID.gi, evalue);
             if (!seqids.isEmpty()) {
@@ -34,7 +34,7 @@ public class HitsScan implements Runnable {
                 cmntaxid = Taxonomy.INSTANCE.findCommonAncestor(taxids);
             }
             record.setTaxonId(cmntaxid);
-            System.out.println("HitAnalysis for read " + record.recordid + " finished successfully");
+//            System.out.println("HitAnalysis for read " + record.recordid + " finished successfully");
             processor.threadSuccessfullyFinished(this);
         } catch (Exception ex) {
             Logger.getLogger(HitsScan.class.getName()).log(Level.SEVERE, null, ex);
