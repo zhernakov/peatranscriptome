@@ -3,19 +3,24 @@ package ngsanalyser.processor;
 import java.util.List;
 import ngsanalyser.dbservice.DBService;
 import ngsanalyser.experiment.Run;
+import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
 
 public class Storaging implements Runnable {
     private final Storager processor;
-    private final List<NGSRecord> records;
+    private final NGSAddible resultstorage;
+    private final NGSAddible failedstorage;
     private final Run run;
+    private final List<NGSRecord> records;
     
     private static int count = 0;
-    
-    Storaging(Storager processor, List<NGSRecord> records, Run run) {
+
+    public Storaging(Storager processor, NGSAddible resultstorage, NGSAddible failedstorage, Run run, List<NGSRecord> records) {
         this.processor = processor;
-        this.records = records;
+        this.resultstorage = resultstorage;
+        this.failedstorage = failedstorage;
         this.run = run;
+        this.records = records;
     }
 
     @Override
@@ -25,10 +30,11 @@ public class Storaging implements Runnable {
 //            System.out.println("Storage operation " + n + " started");
             DBService.INSTANCE.addSequences(run, records);
 //            System.out.println("Storage operation " + n + " finished");
-            processor.insertCompleted(this);
         } catch (Exception ex) {
             System.out.println("Storage operation " + n + " failed");
-            processor.insertFailed(this, ex);
+            failedstorage.addNGSRecordsCollection(records);
+        } finally {
+            processor.eliminateThread(this);
         }
     }
 

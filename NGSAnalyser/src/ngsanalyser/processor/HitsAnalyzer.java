@@ -1,7 +1,6 @@
 package ngsanalyser.processor;
 
 import java.util.Collection;
-import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
 
@@ -18,7 +17,7 @@ public class HitsAnalyzer extends AbstractProcessor {
 
     @Override
     public void addNGSRecord(NGSRecord record) {
-        final HitsScan scan = new HitsScan(this, record, evalue);
+        final HitsScan scan = new HitsScan(this, resultstorage, failedstorage, evalue, record);
         startNewThread(scan);
     }
 
@@ -26,20 +25,6 @@ public class HitsAnalyzer extends AbstractProcessor {
     public void addNGSRecordsCollection(Collection<NGSRecord> records) {
         for (final NGSRecord record : records) {
             addNGSRecord(record);
-        }
-    }
-
-    void threadSuccessfullyFinished(HitsScan scan) {
-        recordProcessed(scan.getRecord());
-        eliminateThread(scan);
-    }
-
-    void threadProcessingFailed(HitsScan scan, Exception ex) {
-        if (ex instanceof NoConnectionException) {
-            restartThread(scan);
-        } else {
-            recordProcessingFailed(scan.getRecord());
-            eliminateThread(scan);
         }
     }
 }

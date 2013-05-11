@@ -1,7 +1,6 @@
 package ngsanalyser.processor;
 
 import java.util.Collection;
-import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
 
@@ -13,7 +12,7 @@ public class BLASTer extends AbstractProcessor {
 
     @Override
     public void addNGSRecord(NGSRecord record) {
-        final BLASTQuery query = new BLASTQuery(this, record);
+        final BLASTQuery query = new BLASTQuery(this, resultstorage, failedstorage, record);
         startNewThread(query);
     }
 
@@ -21,20 +20,6 @@ public class BLASTer extends AbstractProcessor {
     public void addNGSRecordsCollection(Collection<NGSRecord> records) {
         for (final NGSRecord record : records) {
             addNGSRecord(record);
-        }
-    }
-
-    void threadSuccessfullyFinished(BLASTQuery query) {
-        recordProcessed(query.getRecord());
-        eliminateThread(query);
-    }
-
-    void threadProcessingFailed(BLASTQuery query, Exception ex) {
-        if (ex instanceof NoConnectionException) {
-            restartThread(query);
-        } else {
-            recordProcessingFailed(query.getRecord());
-            eliminateThread(query);
         }
     }
 }

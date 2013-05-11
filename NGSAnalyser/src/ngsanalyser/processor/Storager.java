@@ -41,8 +41,7 @@ public class Storager extends AbstractProcessor {
                 sublist.add(storage.remove(0));
             }
             count -= querysize;
-            final Storaging thread = new Storaging(this, sublist, run);
-            startNewThread(thread);
+            startStorageProcedure(sublist);
         }
         if (terminated) {
             final List<NGSRecord> sublist = new LinkedList<>();
@@ -50,17 +49,15 @@ public class Storager extends AbstractProcessor {
                 sublist.add(storage.remove(0));
             }
             count = 0;
+            if (!sublist.isEmpty()) {
+                startStorageProcedure(sublist);
+            }
         }
     }
-
-    void insertCompleted(Storaging thread) {
-        recordsProcessed(thread.getRecords());
-        eliminateThread(thread);
-    }
-
-    void insertFailed(Storaging thread, Exception ex) {
-        recordsProcessingFailed(thread.getRecords());
-        eliminateThread(thread);
+    
+    private void startStorageProcedure(List<NGSRecord> records) {
+        final Storaging storaging = new Storaging(this, resultstorage, failedstorage, run, records);
+        startNewThread(storaging);
     }
 
     @Override

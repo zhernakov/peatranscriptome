@@ -1,6 +1,5 @@
 package ngsanalyser.processor;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -8,23 +7,22 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ngsanalyser.ngsdata.NGSAddible;
-import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.processes.ProcessesManager;
 
 public abstract class AbstractProcessor implements NGSAddible {
     private final ExecutorService executor = Executors.newCachedThreadPool();
-    private final List<Runnable> threads = new LinkedList<>();
+    private final List<Runnable> workingthreads = new LinkedList<>();
+
+    private int threadnumber;
+    private int threadinwork = 0;
 
     private final int waitingsize = 20;
     private final long[] waiting = new long[waitingsize];
     private int waitingcursor = 0;
     private int startedthreadcount = 0;
 
-    private final NGSAddible resultstorage;
-    private final NGSAddible failedstorage;
-
-    private int threadnumber;
-    private int threadinwork = 0;
+    protected final NGSAddible resultstorage;
+    protected final NGSAddible failedstorage;
 
     protected AbstractProcessor(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
         this.resultstorage = resultstorage;
@@ -39,7 +37,7 @@ public abstract class AbstractProcessor implements NGSAddible {
                 wait();
             }
             executor.execute(thread);
-            threads.add(thread);
+            workingthreads.add(thread);
             ++threadinwork;
             addWaitingTime(System.nanoTime() - start);
         } catch (InterruptedException ex) {
@@ -53,25 +51,9 @@ public abstract class AbstractProcessor implements NGSAddible {
     }
     
     protected synchronized void eliminateThread(Runnable thread) {
-        threads.remove(thread);
+        workingthreads.remove(thread);
         --threadinwork;
         notify();
-    }
-    
-    protected void recordProcessed(NGSRecord record) {
-        resultstorage.addNGSRecord(record);
-    }
-    
-    protected void recordsProcessed (Collection<NGSRecord> records) {
-        resultstorage.addNGSRecordsCollection(records);
-    }
-    
-    protected void recordProcessingFailed(NGSRecord record) {
-        failedstorage.addNGSRecord(record);
-    }
-    
-    protected void recordsProcessingFailed (Collection<NGSRecord> records) {
-        failedstorage.addNGSRecordsCollection(records);
     }
 
     @Override
