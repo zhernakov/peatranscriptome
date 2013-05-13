@@ -67,4 +67,8 @@ public class NGSRecord {
     public void setTaxonId(int taxid) {
         this.taxid = taxid;
     }
+
+    public String getExceptionMessage() {
+        return logger.toString();
+    }
 }

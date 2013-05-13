@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import ngsanalyser.exception.NoDataBaseRespondException;
+import ngsanalyser.exception.NoDataBaseResponseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSRecord;
 
@@ -45,7 +45,7 @@ public class DBService {
         connection = DriverManager.getConnection("jdbc:mysql://" + url + "/" + databasename, user, password);
     }
 
-    private PreparedStatement getPreparedStatement(String template) throws SQLException, NoDataBaseRespondException {
+    private PreparedStatement getPreparedStatement(String template) throws SQLException, NoDataBaseResponseException {
         try {
             if (connection == null) {
                 connect();
@@ -54,14 +54,14 @@ public class DBService {
         } catch (SQLException ex) {
             int errorcode = ex.getErrorCode();
             if (errorcode < 2058 && errorcode > 1999) {
-                throw new NoDataBaseRespondException();
+                throw new NoDataBaseResponseException();
             } else {
                 throw ex;
             }
         }
     }
 
-    public int getExperimentId(String secretid, String title) throws SQLException, NoDataBaseRespondException {
+    public int getExperimentId(String secretid, String title) throws SQLException, NoDataBaseResponseException {
         final String template = "SELECT id FROM experiments WHERE "
                 + "secretid = ? AND title = ?;";
         final PreparedStatement statement = getPreparedStatement(template);
@@ -71,7 +71,7 @@ public class DBService {
         return getId(statement.executeQuery());
     }
 
-    public int addExperiment(String secretid, String title, String description) throws SQLException, NoDataBaseRespondException {
+    public int addExperiment(String secretid, String title, String description) throws SQLException, NoDataBaseResponseException {
         final String template = "INSERT INTO experiments (secretid, title, description) "
                 + "VALUES (?, ?, ?);";
         final PreparedStatement statement = getPreparedStatement(template);
@@ -83,7 +83,7 @@ public class DBService {
         return getExperimentId(secretid, title);
     }
 
-    public int getRunId(int expdbid, String secretid, String title) throws SQLException, NoDataBaseRespondException {
+    public int getRunId(int expdbid, String secretid, String title) throws SQLException, NoDataBaseResponseException {
         final String template = "SELECT id FROM runs WHERE "
                 + "experimentid = ? AND secretid = ? AND title = ?;";
         final PreparedStatement statement = getPreparedStatement(template);
@@ -96,7 +96,7 @@ public class DBService {
 
     public int addRun(
             int expdbid, String secretid, String title, String description,
-            int species, String breed, String source, String platform) throws SQLException, NoDataBaseRespondException {
+            int species, String breed, String source, String platform) throws SQLException, NoDataBaseResponseException {
         final String template = "INSERT INTO runs ("
                 + "experimentid, secretid, title, description, species, breed, source, platform"
                 + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -114,7 +114,7 @@ public class DBService {
         return getRunId(expdbid, secretid, title);
     }
   
-    public void addSequences(Run run, List<NGSRecord> records) throws SQLException, NoDataBaseRespondException {
+    public void addSequences(Run run, List<NGSRecord> records) throws SQLException, NoDataBaseResponseException {
         final String template = "INSERT INTO sequences "
                 + "(runid, readid, additional, sequence, quality, length, taxid) "
                 + "VALUES (" + run.db_runid + ", ?, ?, ?, ?, ?, ?)";
@@ -132,7 +132,7 @@ public class DBService {
         statement.executeBatch();
     }
 
-    public Set<String> getStoragedSequences(Run run) throws NoDataBaseRespondException, SQLException {
+    public Set<String> getStoragedSequences(Run run) throws NoDataBaseResponseException, SQLException {
         final Set<String> set = new TreeSet<>();
         final String template = "SELECT readid FROM sequences WHERE runid = ?;";
         final PreparedStatement statement = getPreparedStatement(template);

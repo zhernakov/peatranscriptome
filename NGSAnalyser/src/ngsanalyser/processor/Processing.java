@@ -2,12 +2,15 @@ package ngsanalyser.processor;
 
 import java.sql.SQLException;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ngsanalyser.dbservice.DBService;
-import ngsanalyser.exception.NoDataBaseRespondException;
+import ngsanalyser.exception.NoDataBaseResponseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSCollectable;
 import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.ngsdata.NGSRecordsCollection;
+import ngsanalyser.ngsdata.NGSRecordsWriter;
 
 public class Processing {
     private final Run run;
@@ -15,22 +18,21 @@ public class Processing {
     
     private final Set<String> stored;
 
-    private final NGSRecordsCollection tmpstorage = new NGSRecordsCollection();
-    private final NGSRecordsCollection failedstorage = new NGSRecordsCollection();
+    private final NGSRecordsWriter failedstorage = new NGSRecordsWriter("failed.txt");
     
     private final BLASTer blaster;
     private final HitsAnalyzer analyzer;
     private final Storager storager;
 
-    public Processing(Run run, NGSCollectable source) throws NoDataBaseRespondException, SQLException {
+    public Processing(Run run, NGSCollectable source) throws NoDataBaseResponseException, SQLException {
         this.run = run;
         this.source = source;
         
         stored = DBService.INSTANCE.getStoragedSequences(run);
         
-        storager = new Storager(tmpstorage, failedstorage, 2, run);
-        analyzer = new HitsAnalyzer(storager, failedstorage, 40);
-        blaster = new BLASTer(analyzer, failedstorage, 120);
+        storager = new Storager(failedstorage, 2, run);
+        analyzer = new HitsAnalyzer(storager, failedstorage, 5);
+        blaster = new BLASTer(analyzer, failedstorage, 50);
     }
     
     private boolean isRecordStored(String id) {
@@ -57,15 +59,37 @@ public class Processing {
         })).start();
     }
     
-    public void printMeanWaitingTime() {
-        System.out.println("Blaster:      " + blaster.meanWaitingTime());
-        System.out.println("HitsAnalyzer: " + analyzer.meanWaitingTime());
-        System.out.println("Storager:     " + storager.meanWaitingTime());
-        final Runtime r = Runtime.getRuntime();
-        System.out.println("free memory: " + r.freeMemory() 
-                + "\t total memory: " + r.totalMemory() 
-                + "\t maximal memery: " + r.maxMemory());
-        System.out.println(1. - (double)r.freeMemory() / r.totalMemory());
-       
+    public void startMonitoring() {
+        final Thread monitor = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        Thread.sleep(60000);
+                    } catch (InterruptedException ex) {
+                    }
+                    System.out.println("Processor\tThreads\tWaiting\tProcessed\tFailed");
+                    System.out.println("Blaster:\t" + 
+                            blaster.getThreadInWork() + "\t"
+                            + blaster.meanWaitingTime() + "\t" 
+                            + BLASTQuery.recordsprocessed + "\t"
+                            + BLASTQuery.recordsfailed);
+                    System.out.println("HitsAnalyzer:\t" + 
+                            analyzer.getThreadInWork() + "\t"
+                            + analyzer.meanWaitingTime() + "\t" 
+                            + HitsScan.recordsprocessed + "\t"
+                            + HitsScan.recordsfailed);
+                    System.out.println("Storager:\t" + 
+                            storager.getThreadInWork() + "\t"
+                            + storager.meanWaitingTime() + "\t" 
+                            + Storaging.recordsprocessed + "\t"
+                            + Storaging.recordsfailed);
+                    System.out.println();
+                }
+            }
+        });
+        monitor.setDaemon(true);
+        monitor.start();
     }
 }

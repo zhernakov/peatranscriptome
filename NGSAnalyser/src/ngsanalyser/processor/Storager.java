@@ -13,8 +13,8 @@ public class Storager extends AbstractProcessor {
     private int querysize = 10;
     private int count = 0;
 
-    public Storager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, Run run) {
-        super(resultstorage, failedstorage, threadnumber);
+    public Storager(NGSAddible failedstorage, int threadnumber, Run run) {
+        super(null, failedstorage, threadnumber);
         this.run = run;
     }
 
@@ -56,7 +56,7 @@ public class Storager extends AbstractProcessor {
     }
     
     private void startStorageProcedure(List<NGSRecord> records) {
-        final Storaging storaging = new Storaging(this, resultstorage, failedstorage, run, records);
+        final Storaging storaging = new Storaging(this, failedstorage, run, records);
         startNewThread(storaging);
     }
 

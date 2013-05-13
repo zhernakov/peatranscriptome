@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ngsanalyser.dbservice.DBService;
 import ngsanalyser.exception.NoConnectionException;
-import ngsanalyser.exception.NoDataBaseRespondException;
+import ngsanalyser.exception.NoDataBaseResponseException;
 import ngsanalyser.exception.ParseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSFile;
@@ -19,7 +19,7 @@ import ngsanalyser.taxonomy.TaxonomyException;
 
 public class NGSAnalyser {
 
-    public static void main(String[] args) throws NGSFileException, InterruptedException, TaxonomyException, ParseException, IOException, SQLException, NoConnectionException, NoDataBaseRespondException {
+    public static void main(String[] args) throws NGSFileException, InterruptedException, TaxonomyException, ParseException, IOException, SQLException, NoConnectionException, NoDataBaseResponseException {
         final Settings settings = new Settings();
         new JCommander(settings, args);
         
@@ -34,34 +34,7 @@ public class NGSAnalyser {
 
         final Processing pr = new Processing(run, fastqfile);
         pr.startProcessing();
-        
-        (new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                while (true) {
-                    pr.printMeanWaitingTime();
-                    try {
-                        Thread.sleep(20000);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(NGSAnalyser.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        })).start();
-        
-//        final NGSFile fastqfile = NGSFile.NGSFileFactory(settings.ngsfile);
-//        final NGSRecordsCollection blaststorage = new NGSRecordsCollection();
-//        final NGSRecordsCollection failedstorage = new NGSRecordsCollection();
-//        
-//        final BLASTer blaster = new BLASTer(fastqfile, blaststorage, failedstorage, run, 20);
-//
-//        final DataBaseStorager storager = new DataBaseStorager(failedstorage, run);
-//        
-//        final HitsAnalyzer analyzer = new HitsAnalyzer(blaststorage, storager, failedstorage, 15);
-//        
-//        blaster.startBLAST();
-//        analyzer.startAnalysis();
+        pr.startMonitoring();
         
     }
 }

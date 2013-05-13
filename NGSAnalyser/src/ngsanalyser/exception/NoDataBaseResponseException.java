@@ -1,11 +1,11 @@
 package ngsanalyser.exception;
 
-public class NoDataBaseRespondException extends Exception {
+public class NoDataBaseResponseException extends Exception {
 
-    public NoDataBaseRespondException() {
+    public NoDataBaseResponseException() {
     }
 
-    public NoDataBaseRespondException(String msg) {
+    public NoDataBaseResponseException(String msg) {
         super(msg);
     }
 }

@@ -1,8 +1,6 @@
 package ngsanalyser.processor;
 
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.ncbiservice.NCBIService;
 import ngsanalyser.ncbiservice.blast.DBID;
@@ -11,6 +9,9 @@ import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.taxonomy.Taxonomy;
 
 public class HitsScan implements Runnable {
+    protected static int recordsprocessed = 0;
+    protected static int recordsfailed = 0;
+
     private final HitsAnalyzer processor;
     private final NGSAddible resultstorage;
     private final NGSAddible failedstorage;
@@ -38,18 +39,21 @@ public class HitsScan implements Runnable {
             }
             record.setTaxonId(cmntaxid);
 //            System.out.println("HitAnalysis for read " + record.recordid + " finished successfully");
+            ++recordsprocessed;
             resultstorage.addNGSRecord(record);
             processor.eliminateThread(this);
         } catch (NoConnectionException ex) {
             try {
-                wait(5000);
+                Thread.sleep(5000);
             } catch (InterruptedException ex1) {
-                Logger.getLogger(BLASTQuery.class.getName()).log(Level.SEVERE, null, ex1);
+//                Logger.getLogger(BLASTQuery.class.getName()).log(Level.SEVERE, null, ex1);
             }
             processor.restartThread(this);
         } catch (Exception ex) {
-            Logger.getLogger(HitsScan.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(HitsScan.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("HitAnalysis for read " + record.recordid + " faied");
+            record.loqError(ex);
+            ++recordsfailed;
             failedstorage.addNGSRecord(record);
             processor.eliminateThread(this);
         }
