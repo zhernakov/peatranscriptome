@@ -24,5 +24,13 @@
             <source>epicotyl</source>
             <platform>LS454</platform>
         </run>
+        <run>
+            <secretid>skvnwpgl;sfrllv</secretid>
+            <title>FLO</title>
+            <description>RNA extracted and pooled from multiple individuals</description>
+            <species>3888</species>
+            <source>flower</source>
+            <platform>LS454</platform>
+        </run>
     </runs>
 </experiment>
