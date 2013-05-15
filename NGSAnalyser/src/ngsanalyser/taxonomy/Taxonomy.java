@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -12,25 +13,31 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ngsanalyser.dbservice.DBService;
+import ngsanalyser.exception.NoDataBaseResponseException;
 
 public class Taxonomy {
-
     public static final Taxonomy INSTANCE = new Taxonomy();
 
-    private Taxonomy() {
-    }
-    private static String path = "D:\\_workspace\\peatranscriptome\\_data\\taxonomy_rs";
+    private final Map<Integer, Integer> taxons = new TreeMap<>();
 
-    synchronized public static void setSourcePath(String defaultpath) {
-        Taxonomy.path = defaultpath;
+    private Taxonomy(){
+    }
+    
+     
+    public void loadData(String path) throws TaxonomyException, SQLException, NoDataBaseResponseException {
+        if (path == null){
+            INSTANCE.loadDataFromDataBase();
+        }else{
+            INSTANCE.loadDataFromFile(path);
+        }
+    }
+    
+    public void loadDataFromDataBase() throws SQLException, NoDataBaseResponseException {
+        DBService.INSTANCE.copyTaxonomy(taxons);
     }
 
-    synchronized public static void loadSource() throws TaxonomyException {
-        INSTANCE.loadData();
-    }
-    private final Map<Integer, Integer> db = new TreeMap<>();
-
-    private void loadData() throws TaxonomyException {
+    public void loadDataFromFile(String path) throws TaxonomyException {
         FileInputStream in = null;
         final byte[] array = new byte[6];
 
@@ -39,7 +46,7 @@ public class Taxonomy {
             while (in.read(array) != -1) {
                 int taxid = ((((int) array[0]) & 0xFF) << 16) | ((((int) array[1]) & 0xFF) << 8) | (((int) array[2]) & 0xFF);
                 int parent = ((((int) array[3]) & 0xFF) << 16) | ((((int) array[4]) & 0xFF) << 8) | (((int) array[5]) & 0xFF);
-                Integer put = db.put(taxid, parent);
+                Integer put = taxons.put(taxid, parent);
                 if (put != null) {
                     System.err.println(taxid + " " + parent + " " + put);
                 }
@@ -62,12 +69,14 @@ public class Taxonomy {
         }
     }
 
+//    /////////////////////////////////////////
+    
     public int getTaxonNumber() {
-        return db.size();
+        return taxons.size();
     }
 
     public boolean hasTaxon(Integer taxid) {
-        return db.containsKey(taxid);
+        return taxons.containsKey(taxid);
     }
 
     public int findCommonAncestor(Iterable<Integer> list) throws TaxonomyHierarchyException {
@@ -84,13 +93,11 @@ public class Taxonomy {
         }
     }
 
-    ;
-
     private LinkedList<Integer> defineAncestorsPath(Integer taxid) throws TaxonomyHierarchyException {
         final LinkedList<Integer> ancestors = new LinkedList<>();
         ancestors.add(taxid);
         Integer parentid;
-        while ((parentid = db.get(taxid)) != taxid) {
+        while ((parentid = taxons.get(taxid)) != taxid) {
             if (parentid == null) {
                 throw new TaxonomyHierarchyException("Can't find parent taxon to taxon with id " + taxid);
             }
@@ -106,7 +113,7 @@ public class Taxonomy {
     private void cutAncestorsPath(LinkedList<Integer> ancestors, Integer taxid) throws TaxonomyHierarchyException {
         Integer parentid;
         while (!ancestors.contains(taxid)) {
-            parentid = db.get(taxid);
+            parentid = taxons.get(taxid);
             if (parentid == null) {
                 throw new TaxonomyHierarchyException("Can't find parent taxon to taxon with id " + taxid);
             }

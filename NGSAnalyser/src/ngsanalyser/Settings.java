@@ -20,4 +20,7 @@ public class Settings {
 
     @Parameter(names= {"-p", "--password"}, description = "bd password", required = false)
     public String password = "1981ujlfhj;ltybz";
+
+    @Parameter(names= {"-t", "--taxonomy"}, description = "path to file with taxons", required = false)
+    public String taxonomy = null;
 }

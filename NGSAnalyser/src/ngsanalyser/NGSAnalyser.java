@@ -24,17 +24,16 @@ public class NGSAnalyser {
         new JCommander(settings, args);
         
         DBService.INSTANCE.setConnectionParametr(settings.url, settings.login, settings.password);
-
-        Taxonomy.loadSource();
+        Taxonomy.INSTANCE.loadData(settings.taxonomy);
 
         final Experiment experiment = Experiment.createInstance(settings.experiment);
         final Run run = experiment.getRun(settings.run);
 
         final NGSFile fastqfile = NGSFile.NGSFileFactory(settings.ngsfile);
 
-        final Processing pr = new Processing(run, fastqfile);
-        pr.startProcessing();
-        pr.startMonitoring();
+//        final Processing pr = new Processing(run, fastqfile);
+//        pr.startProcessing();
+//        pr.startMonitoring();
         
     }
 }

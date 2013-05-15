@@ -5,7 +5,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import ngsanalyser.exception.NoDataBaseResponseException;
@@ -61,6 +63,23 @@ public class DBService {
         }
     }
 
+    private Statement getStatement() throws NoDataBaseResponseException, SQLException {
+        try {
+            if (connection == null) {
+                connect();
+            }
+            return connection.createStatement();
+        } catch (SQLException ex) {
+            int errorcode = ex.getErrorCode();
+            if (errorcode < 2058 && errorcode > 1999) {
+                throw new NoDataBaseResponseException();
+            } else {
+                throw ex;
+            }
+        }
+    }
+    
+//    ////////////////////////////////
     public int getExperimentId(String secretid, String title) throws SQLException, NoDataBaseResponseException {
         final String template = "SELECT id FROM experiments WHERE "
                 + "secretid = ? AND title = ?;";
@@ -143,5 +162,14 @@ public class DBService {
             set.add(result.getString("readid"));
         }
         return set;
+    }
+
+    public void copyTaxonomy(Map<Integer, Integer> taxons) throws SQLException, NoDataBaseResponseException {
+        final String query = "SELECT id, parentid FROM taxonomy;";
+        final ResultSet result = getStatement().executeQuery(query);
+        
+        while (result.next()) {
+            taxons.put(result.getInt("id"), result.getInt("parentid"));
+        }
     }
 }
