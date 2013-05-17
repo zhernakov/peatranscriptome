@@ -6,7 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -133,7 +133,7 @@ public class DBService {
         return getRunId(expdbid, secretid, title);
     }
   
-    public void addSequences(Run run, List<NGSRecord> records) throws SQLException, NoDataBaseResponseException {
+    public void addSequences(Run run, Collection<NGSRecord> records) throws SQLException, NoDataBaseResponseException {
         final String template = "INSERT INTO sequences "
                 + "(runid, readid, additional, sequence, quality, length, taxid) "
                 + "VALUES (" + run.db_runid + ", ?, ?, ?, ?, ?, ?)";

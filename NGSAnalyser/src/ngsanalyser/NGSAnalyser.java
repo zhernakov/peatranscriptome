@@ -3,6 +3,7 @@ package ngsanalyser;
 import ngsanalyser.experiment.Experiment;
 import com.beust.jcommander.JCommander;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,7 +15,7 @@ import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.exception.NoDataBaseResponseException;
 import ngsanalyser.exception.ParseException;
 import ngsanalyser.experiment.Run;
-import ngsanalyser.ncbiservice.NCBIBLASTService;
+import ngsanalyser.ncbiservice.NCBIService2;
 import ngsanalyser.ncbiservice.NCBIService;
 import ngsanalyser.ngsdata.NGSFile;
 import ngsanalyser.ngsdata.NGSFileException;
@@ -41,12 +42,12 @@ public class NGSAnalyser {
         for (int i = 0; i < 5; ++i) {
             list.add(fastqfile.getNGSRecord());
         }
+        InputStream is = NCBIService2.INSTANCE.multiMegaBlast(list);
+        NCBIService2.printStream(is);
         
-        NCBIBLASTService.INSTANCE.multiMegaBlast(list);
-
-//        final Processing pr = new Processing(run, fastqfile);
-//        pr.startProcessing();
-//        pr.startMonitoring();
+        //        final Processing pr = new Processing(run, fastqfile);
+        //        pr.startProcessing();
+        //        pr.startMonitoring();
         
     }
 }

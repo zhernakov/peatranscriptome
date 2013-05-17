@@ -1,41 +1,44 @@
 package ngsanalyser.processor2;
 
+import java.io.InputStream;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Map;
 import ngsanalyser.exception.BLASTException;
 import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.exception.ParseException;
-import ngsanalyser.ncbiservice.NCBIBLASTService;
-import ngsanalyser.ncbiservice.NCBIService;
+import ngsanalyser.ncbiservice.NCBIParser;
+import ngsanalyser.ncbiservice.NCBIService2;
+import ngsanalyser.ncbiservice.blast.BlastHits;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
 
-public class MultiBLUSTer extends MultiProcessor {
+public class MultiBLASTer extends AbstractMultiProcessor {
 
-    public MultiBLUSTer(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, int bunchsize) {
+    public MultiBLASTer(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, int bunchsize) {
         super(resultstorage, failedstorage, threadnumber, bunchsize);
     }
 
     @Override
-    protected Process createProcess(List<NGSRecord> bunch) {
+    protected Process createProcess(Collection<NGSRecord> bunch) {
         return new BLUSTQuery(bunch);
     }
     
-/////////////
+    /////////////
     
     private final class BLUSTQuery extends Process {
-        private final List<NGSRecord> records;
+        private final Collection<NGSRecord> records;
 
-        private BLUSTQuery(List<NGSRecord> records) {
+        private BLUSTQuery(Collection<NGSRecord> records) {
             this.records = records;
         }
 
         @Override
         protected void processing() throws NoConnectionException, BLASTException, ParseException {
-            NCBIBLASTService.INSTANCE.multiMegaBlast(records);
+            final InputStream stream = NCBIService2.INSTANCE.multiMegaBlast(records);
+            final Map<String,BlastHits> hits = NCBIParser.parseBlastResult(stream);
+            for (final NGSRecord record : records) {
+                record.setBLASTHits(hits.get(record.recordid));
+            }
         }
 
         @Override

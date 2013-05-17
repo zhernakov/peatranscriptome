@@ -11,6 +11,35 @@ public class Timer {
         this.interval = interval;
     }
     
+    public synchronized void getPermission() {
+        while (!ready) {
+            try {
+                wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Timer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        ready = false;
+        (new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(interval);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Timer.class.getName()).log(Level.SEVERE, null, ex);
+                } finally {
+                    timingFinished();
+                }
+            }
+        })).start();
+    }
+
+    synchronized private void timingFinished() {
+        ready = true;
+        notify();
+    }
+    
+   
     synchronized public void start() {
         while (!ready) {
             try {
@@ -25,11 +54,6 @@ public class Timer {
     synchronized private void startTiming() {
         new Thread(new Timing(interval)).start();
         ready = false;
-    }
-    
-    synchronized private void timingFinished() {
-        ready = true;
-        notify();
     }
     
     private class Timing implements Runnable {

@@ -1,5 +1,6 @@
 package ngsanalyser.processor2;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -7,9 +8,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ngsanalyser.exception.BLASTException;
 import ngsanalyser.exception.NoConnectionException;
+import ngsanalyser.exception.NoDataBaseResponseException;
 import ngsanalyser.exception.ParseException;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
+import ngsanalyser.taxonomy.TaxonomyException;
 
 public abstract class AbstractProcessor implements NGSAddible {
     private final ExecutorService executor = Executors.newCachedThreadPool();
@@ -133,14 +136,16 @@ public abstract class AbstractProcessor implements NGSAddible {
                 processingSuccessfullyFinished(getRecords());
             } catch (NoConnectionException ex) {
                 restartProcess(cloneProcess());
-            } catch (ParseException ex) {
+            } catch (BLASTException | ParseException | TaxonomyException ex) {
                 processingCanNotBeFinished(getRecords());
-            } catch (Exception ex) {
-                processingCanNotBeFinished(getRecords());
+            } catch (SQLException ex) {
+                Logger.getLogger(AbstractProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NoDataBaseResponseException ex) {
+                Logger.getLogger(AbstractProcessor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         
-        protected abstract void processing() throws NoConnectionException, BLASTException, ParseException;
+        protected abstract void processing() throws NoConnectionException, BLASTException, ParseException, TaxonomyException, SQLException, NoDataBaseResponseException ;
         protected abstract Process cloneProcess();
         protected abstract Collection<NGSRecord> getRecords();
     }
