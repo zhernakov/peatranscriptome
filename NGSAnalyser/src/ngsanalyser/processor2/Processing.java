@@ -30,7 +30,7 @@ public class Processing {
         
         storager = new Storager(null, failedstorage, 2, 7, run);
         analyser = new HitsAnalyzer(storager, failedstorage, 2, 1e-25);
-        blaster = new MultiBLASTer(analyser, failedstorage, 4, 11);
+        blaster = new MultiBLASTer(analyser, failedstorage, 4, 20);
     }
 
     private boolean isRecordStored(String id) {

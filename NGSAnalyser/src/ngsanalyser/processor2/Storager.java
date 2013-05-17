@@ -12,13 +12,13 @@ public class Storager extends AbstractMultiProcessor {
     private final Run run;
 
     public Storager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, int bunchsize, Run run) {
-        super(resultstorage, failedstorage, threadnumber, bunchsize);
+        super("Storager", resultstorage, failedstorage, threadnumber, bunchsize);
         this.run = run;
     }
 
     @Override
     protected Process createProcess(Collection<NGSRecord> bunch) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new Storaging(bunch);
     }
     
     /////////////

@@ -15,7 +15,7 @@ import ngsanalyser.ngsdata.NGSRecord;
 public class MultiBLASTer extends AbstractMultiProcessor {
 
     public MultiBLASTer(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, int bunchsize) {
-        super(resultstorage, failedstorage, threadnumber, bunchsize);
+        super("BLASTer", resultstorage, failedstorage, threadnumber, bunchsize);
     }
 
     @Override

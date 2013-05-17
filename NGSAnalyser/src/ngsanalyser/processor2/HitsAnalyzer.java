@@ -20,7 +20,7 @@ public class HitsAnalyzer extends AbstractProcessor {
     private final double evalue;
 
     public HitsAnalyzer(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, double evalue) {
-        super(resultstorage, failedstorage, threadnumber);
+        super("HitsAnalyzer", resultstorage, failedstorage, threadnumber);
         this.evalue = evalue;
     }
 

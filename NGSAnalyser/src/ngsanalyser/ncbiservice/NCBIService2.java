@@ -20,7 +20,7 @@ public class NCBIService2 {
     
     private static final String blastlink = "http://www.ncbi.nlm.nih.gov/blast/Blast.cgi";
     private static final String eutilslink = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi";
-    private final int waitinterval = 30000;
+    private static final int waitinterval = 30000;
     
     private NCBIService2() {
     }
@@ -155,6 +155,7 @@ public class NCBIService2 {
     
     private void sendBLASTDeleteRequest(String queryId) throws NoConnectionException {
         final String statement = blastlink + "?CMD=Delete&RID=" + queryId;
+        System.out.println(statement);
         send(statement);
     }
 

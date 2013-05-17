@@ -11,8 +11,8 @@ public abstract class AbstractMultiProcessor extends AbstractProcessor {
     private int inbunch = 0;
     private List<NGSRecord> bunchstorage = new LinkedList<>();
 
-    public AbstractMultiProcessor(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, int bunchsize) {
-        super(resultstorage, failedstorage, threadnumber);
+    public AbstractMultiProcessor(String name, NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, int bunchsize) {
+        super(name, resultstorage, failedstorage, threadnumber);
         this.bunchsize = bunchsize;
     }
 
@@ -28,7 +28,9 @@ public abstract class AbstractMultiProcessor extends AbstractProcessor {
 
     @Override
     public final void terminate() {
-        startNewProcess(createProcess(bunchstorage));
+        if (inbunch > 0) {
+            startNewProcess(createProcess(bunchstorage));
+        }
         bunchstorage = null;
         inbunch = -1;
         super.terminate();

@@ -15,6 +15,8 @@ import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.taxonomy.TaxonomyException;
 
 public abstract class AbstractProcessor implements NGSAddible {
+    private final String processorname;
+    
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private int threadnumber;
@@ -35,7 +37,8 @@ public abstract class AbstractProcessor implements NGSAddible {
     protected final NGSAddible resultstorage;
     protected final NGSAddible failedstorage;
 
-    public AbstractProcessor(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
+    public AbstractProcessor(String name, NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
+        this.processorname = name;
         this.resultstorage = resultstorage;
         this.failedstorage = failedstorage;
         this.threadnumber = threadnumber;
@@ -68,15 +71,15 @@ public abstract class AbstractProcessor implements NGSAddible {
         if (resultstorage != null) {
             resultstorage.terminate();
         }
-        System.out.println("Processor is terminated:\n"
-                + "\tstarted threads:" + startedthreads
-                + "\tsuccessfull threads:" + successfullthreads 
-                + "treated records: " + successfullrecords);
+        System.out.println("Processor " + processorname +" is terminated:"
+                + "\n\tstarted threads:" + startedthreads
+                + "\n\tsuccessfull threads:" + successfullthreads 
+                + "\n\ttreated records: " + successfullrecords);
     }
 
     @Override
     public int getNumber() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return successfullrecords + failedrecords;
     }
 
 ///////////
@@ -107,6 +110,7 @@ public abstract class AbstractProcessor implements NGSAddible {
             resultstorage.addNGSRecordsCollection(records);
         }
         ++successfullthreads;
+        successfullrecords += records.size();
         synchronized(this) {
             --threadsinwork;
             notify();
@@ -118,6 +122,7 @@ public abstract class AbstractProcessor implements NGSAddible {
             failedstorage.addNGSRecordsCollection(records);
         }
         ++failedthreads;
+        failedrecords += records.size();
         synchronized(this) {
             --threadsinwork;
             notify();
