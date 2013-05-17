@@ -5,8 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ngsanalyser.exception.BLASTException;
 import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.exception.ParseException;
+import ngsanalyser.ncbiservice.NCBIBLASTService;
 import ngsanalyser.ncbiservice.NCBIService;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
@@ -32,8 +34,8 @@ public class MultiBLUSTer extends MultiProcessor {
         }
 
         @Override
-        protected void processing() throws NoConnectionException, ParseException {
-            NCBIService.INSTANCE.multiblast(records);
+        protected void processing() throws NoConnectionException, BLASTException, ParseException {
+            NCBIBLASTService.INSTANCE.multiMegaBlast(records);
         }
 
         @Override

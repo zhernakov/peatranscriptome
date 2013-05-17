@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ngsanalyser.exception.BLASTException;
 import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.exception.ParseException;
 import ngsanalyser.ngsdata.NGSAddible;
@@ -139,7 +140,7 @@ public abstract class AbstractProcessor implements NGSAddible {
             }
         }
         
-        protected abstract void processing() throws NoConnectionException, ParseException;
+        protected abstract void processing() throws NoConnectionException, BLASTException, ParseException;
         protected abstract Process cloneProcess();
         protected abstract Collection<NGSRecord> getRecords();
     }
