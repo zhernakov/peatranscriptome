@@ -78,6 +78,7 @@ public class NCBIService2 {
     
     private String sendBLASTQuery(Collection<NGSRecord> records) throws BLASTException, NoConnectionException {
         final String statement = composeBLASTStatement(records);
+        System.out.println(statement);
         final InputStream in = sendQuery(statement);
         final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         

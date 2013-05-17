@@ -68,6 +68,10 @@ public abstract class AbstractProcessor implements NGSAddible {
         if (resultstorage != null) {
             resultstorage.terminate();
         }
+        System.out.println("Processor is terminated:\n"
+                + "\tstarted threads:" + startedthreads
+                + "\tsuccessfull threads:" + successfullthreads 
+                + "treated records: " + successfullrecords);
     }
 
     @Override

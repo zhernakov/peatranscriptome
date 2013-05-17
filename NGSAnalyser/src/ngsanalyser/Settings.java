@@ -9,8 +9,8 @@ public class Settings {
     @Parameter(names = {"-r", "--run"}, description = "run of experiment", required = true)
     public String run;
 
-    @Parameter(names= {"-s", "--ngsfile"}, description = "file reads", required = true)
-    public String ngsfile;
+    @Parameter(names= {"-s", "--ngsfile"}, description = "file reads", required = false)
+    public String ngsfile = "D:\\COT\\SRR176508.fastq.part7.fastq.part1.fastq";
 
     @Parameter(names= {"-u", "--url"}, description = "bd url", required = false)
     public String url = "193.218.141.85:1981";

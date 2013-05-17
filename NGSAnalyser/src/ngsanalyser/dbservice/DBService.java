@@ -44,7 +44,9 @@ public class DBService {
     }
     
     private void connect() throws SQLException {
+        System.out.println("Connecting to data base " + databasename);
         connection = DriverManager.getConnection("jdbc:mysql://" + url + "/" + databasename, user, password);
+        System.out.println("Connection is successfull ");
     }
 
     private PreparedStatement getPreparedStatement(String template) throws SQLException, NoDataBaseResponseException {
@@ -152,6 +154,7 @@ public class DBService {
     }
 
     public Set<String> getStoragedSequences(Run run) throws NoDataBaseResponseException, SQLException {
+        System.out.println("Downloading already stored sequences list");
         final Set<String> set = new TreeSet<>();
         final String template = "SELECT readid FROM sequences WHERE runid = ?;";
         final PreparedStatement statement = getPreparedStatement(template);
@@ -161,6 +164,7 @@ public class DBService {
         while (result.next()) {
             set.add(result.getString("readid"));
         }
+        System.out.println("Sequences are downloaded");
         return set;
     }
 
