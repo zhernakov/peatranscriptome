@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import ngsanalyser.exception.NoConnectionException;
+import ngsanalyser.exception.NCBIConnectionException;
 import ngsanalyser.exception.ParseException;
 import ngsanalyser.ncbiservice.NCBIParser;
 import ngsanalyser.ncbiservice.NCBIService;
@@ -39,7 +39,7 @@ public class HitsAnalyzer extends AbstractProcessor {
         }
 
         @Override
-        protected void processing() throws NoConnectionException, ParseException, TaxonomyException {
+        protected void processing() throws NCBIConnectionException, ParseException, TaxonomyException {
             int cmntaxid = 1;
             final Collection<String> seqids = record.getBLASTHits().getSeqIdsSet(DBID.gi, evalue);
             if (!seqids.isEmpty()) {

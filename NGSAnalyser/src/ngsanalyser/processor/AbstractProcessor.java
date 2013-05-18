@@ -7,8 +7,8 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ngsanalyser.exception.BLASTException;
-import ngsanalyser.exception.NoConnectionException;
-import ngsanalyser.exception.NoDataBaseResponseException;
+import ngsanalyser.exception.NCBIConnectionException;
+import ngsanalyser.exception.DataBaseResponseException;
 import ngsanalyser.exception.ParseException;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
@@ -126,9 +126,12 @@ public abstract class AbstractProcessor implements NGSAddible {
         }
     }
     
-    private void processingCanNotBeFinished(Collection<NGSRecord> records) {
+    private void processingCanNotBeFinished(Collection<NGSRecord> records, Exception ex) {
         if (failedstorage != null) {
-            failedstorage.addNGSRecordsCollection(records);
+            for (final NGSRecord record : records) {
+                record.loqError(ex);
+                failedstorage.addNGSRecord(record);
+            }
         }
         ++failedthreads;
         failedrecords += records.size();
@@ -152,18 +155,19 @@ public abstract class AbstractProcessor implements NGSAddible {
             try {
                 processing();
                 processingSuccessfullyFinished(getRecords());
-            } catch (NoConnectionException ex) {
+            } catch (NCBIConnectionException | DataBaseResponseException ex) {
                 restartProcess(cloneProcess());
-            } catch (BLASTException | ParseException | TaxonomyException ex) {
-                processingCanNotBeFinished(getRecords());
-            } catch (SQLException ex) {
-                Logger.getLogger(AbstractProcessor.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (NoDataBaseResponseException ex) {
-                Logger.getLogger(AbstractProcessor.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            } catch (BLASTException | ParseException | TaxonomyException | SQLException ex) {
+                processingCanNotBeFinished(getRecords(), ex);
+            } catch (Exception ex) {
+                processingCanNotBeFinished(getRecords(), ex);
+            } 
         }
         
-        protected abstract void processing() throws NoConnectionException, BLASTException, ParseException, TaxonomyException, SQLException, NoDataBaseResponseException ;
+        protected abstract void processing() 
+                throws NCBIConnectionException, BLASTException, 
+                ParseException, TaxonomyException, 
+                DataBaseResponseException, SQLException;
         protected abstract Process cloneProcess();
         protected abstract Collection<NGSRecord> getRecords();
     }

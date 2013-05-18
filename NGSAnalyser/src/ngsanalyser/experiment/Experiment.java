@@ -14,7 +14,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import ngsanalyser.dbservice.DBService;
-import ngsanalyser.exception.NoDataBaseResponseException;
+import ngsanalyser.exception.DataBaseResponseException;
 import ngsanalyser.exception.ParseException;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -41,13 +41,13 @@ public class Experiment {
 
     public final int expdbid;
     
-    private Experiment(String secretid, String title, String description) throws SQLException, NoDataBaseResponseException {
+    private Experiment(String secretid, String title, String description) throws SQLException, DataBaseResponseException {
         this.title = title;
         this.description = description;
         this.expdbid = getExpDbId(secretid);
     }
 
-    private int getExpDbId(String secretid) throws SQLException, NoDataBaseResponseException {
+    private int getExpDbId(String secretid) throws SQLException, DataBaseResponseException {
         int dbid = DBService.INSTANCE.getExperimentId(secretid, title);
         if (dbid == -1) {
             dbid = DBService.INSTANCE.addExperiment(secretid, title, description);
@@ -79,7 +79,7 @@ public class Experiment {
                 case "publications":
                     try {
                         experiment = new Experiment(secretid, title, description);
-                    } catch (SQLException | NoDataBaseResponseException ex) {
+                    } catch (SQLException | DataBaseResponseException ex) {
                         throw new SAXException(ex);
                     }
                     secretid = null;
@@ -136,7 +136,7 @@ public class Experiment {
                         newrun = new Run(
                         experiment.expdbid, secretid, title, description,
                         Integer.parseInt(species) , breed, source, platform);
-                    } catch (SQLException | NoDataBaseResponseException ex) {
+                    } catch (SQLException | DataBaseResponseException ex) {
                         throw new SAXException(ex);
                     }
                     experiment.runs.put(title, newrun);

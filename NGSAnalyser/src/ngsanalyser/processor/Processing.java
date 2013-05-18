@@ -1,9 +1,8 @@
 package ngsanalyser.processor;
 
 import java.sql.SQLException;
-import java.util.Set;
 import ngsanalyser.dbservice.DBService;
-import ngsanalyser.exception.NoDataBaseResponseException;
+import ngsanalyser.exception.DataBaseResponseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSCollectable;
 import ngsanalyser.ngsdata.NGSRecord;
@@ -22,7 +21,7 @@ public class Processing {
     private final Storager storager;
     
 
-    public Processing(Run run, NGSCollectable source) throws NoDataBaseResponseException, SQLException {
+    public Processing(Run run, NGSCollectable source) throws DataBaseResponseException, SQLException {
         this.run = run;
         this.source = source;
         

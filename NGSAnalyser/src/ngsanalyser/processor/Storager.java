@@ -3,7 +3,8 @@ package ngsanalyser.processor;
 import java.sql.SQLException;
 import java.util.Collection;
 import ngsanalyser.dbservice.DBService;
-import ngsanalyser.exception.NoDataBaseResponseException;
+import ngsanalyser.exception.BLASTException;
+import ngsanalyser.exception.DataBaseResponseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
@@ -31,7 +32,7 @@ public class Storager extends AbstractMultiProcessor {
         }
 
         @Override
-        protected void processing() throws SQLException, NoDataBaseResponseException {
+        protected void processing() throws DataBaseResponseException, SQLException, BLASTException {
             DBService.INSTANCE.addSequences(run, records);
         }
 

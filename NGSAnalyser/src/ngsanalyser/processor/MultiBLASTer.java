@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 import ngsanalyser.exception.BLASTException;
-import ngsanalyser.exception.NoConnectionException;
+import ngsanalyser.exception.NCBIConnectionException;
 import ngsanalyser.exception.ParseException;
 import ngsanalyser.ncbiservice.NCBIParser;
 import ngsanalyser.ncbiservice.NCBIService;
@@ -33,7 +33,7 @@ public class MultiBLASTer extends AbstractMultiProcessor {
         }
 
         @Override
-        protected void processing() throws NoConnectionException, BLASTException, ParseException {
+        protected void processing() throws NCBIConnectionException, BLASTException, ParseException {
             final InputStream stream = NCBIService.INSTANCE.multiMegaBlast(records);
             final Map<String,BlastHits> hits = NCBIParser.parseBlastResult(stream);
             for (final NGSRecord record : records) {

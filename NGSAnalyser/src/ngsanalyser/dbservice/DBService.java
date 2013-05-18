@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import ngsanalyser.exception.BLASTException;
-import ngsanalyser.exception.NoDataBaseResponseException;
+import ngsanalyser.exception.DataBaseResponseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.processor.StringTree;
@@ -51,7 +51,7 @@ public class DBService {
         System.out.println("Connection is successfull ");
     }
 
-    private PreparedStatement getPreparedStatement(String template) throws SQLException, NoDataBaseResponseException {
+    private PreparedStatement getPreparedStatement(String template) throws SQLException, DataBaseResponseException {
         try {
             if (connection == null) {
                 connect();
@@ -60,14 +60,14 @@ public class DBService {
         } catch (SQLException ex) {
             int errorcode = ex.getErrorCode();
             if (errorcode < 2058 && errorcode > 1999) {
-                throw new NoDataBaseResponseException();
+                throw new DataBaseResponseException();
             } else {
                 throw ex;
             }
         }
     }
 
-    private Statement getStatement() throws NoDataBaseResponseException, SQLException {
+    private Statement getStatement() throws DataBaseResponseException, SQLException {
         try {
             if (connection == null) {
                 connect();
@@ -76,7 +76,7 @@ public class DBService {
         } catch (SQLException ex) {
             int errorcode = ex.getErrorCode();
             if (errorcode < 2058 && errorcode > 1999) {
-                throw new NoDataBaseResponseException();
+                throw new DataBaseResponseException();
             } else {
                 throw ex;
             }
@@ -84,7 +84,7 @@ public class DBService {
     }
     
 //    ////////////////////////////////
-    public int getExperimentId(String secretid, String title) throws SQLException, NoDataBaseResponseException {
+    public int getExperimentId(String secretid, String title) throws SQLException, DataBaseResponseException {
         final String template = "SELECT id FROM experiments WHERE "
                 + "secretid = ? AND title = ?;";
         final PreparedStatement statement = getPreparedStatement(template);
@@ -94,7 +94,7 @@ public class DBService {
         return getId(statement.executeQuery());
     }
 
-    public int addExperiment(String secretid, String title, String description) throws SQLException, NoDataBaseResponseException {
+    public int addExperiment(String secretid, String title, String description) throws SQLException, DataBaseResponseException {
         final String template = "INSERT INTO experiments (secretid, title, description) "
                 + "VALUES (?, ?, ?);";
         final PreparedStatement statement = getPreparedStatement(template);
@@ -106,7 +106,7 @@ public class DBService {
         return getExperimentId(secretid, title);
     }
 
-    public int getRunId(int expdbid, String secretid, String title) throws SQLException, NoDataBaseResponseException {
+    public int getRunId(int expdbid, String secretid, String title) throws SQLException, DataBaseResponseException {
         final String template = "SELECT id FROM runs WHERE "
                 + "experimentid = ? AND secretid = ? AND title = ?;";
         final PreparedStatement statement = getPreparedStatement(template);
@@ -119,7 +119,7 @@ public class DBService {
 
     public int addRun(
             int expdbid, String secretid, String title, String description,
-            int species, String breed, String source, String platform) throws SQLException, NoDataBaseResponseException {
+            int species, String breed, String source, String platform) throws SQLException, DataBaseResponseException {
         final String template = "INSERT INTO runs ("
                 + "experimentid, secretid, title, description, species, breed, source, platform"
                 + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -137,7 +137,7 @@ public class DBService {
         return getRunId(expdbid, secretid, title);
     }
   
-    public void addSequences(Run run, Collection<NGSRecord> records) throws SQLException, NoDataBaseResponseException, BLASTException {
+    public void addSequences(Run run, Collection<NGSRecord> records) throws SQLException, DataBaseResponseException, BLASTException {
         final String template = "INSERT INTO sequences "
                 + "(runid, readid, additional, sequence, quality, length, taxid, blast) "
                 + "VALUES (" + run.db_runid + ", ?, ?, ?, ?, ?, ?, ?)";
@@ -156,7 +156,7 @@ public class DBService {
         statement.executeBatch();
     }
 
-    public void getStoragedSequences(Run run, StringTree list) throws NoDataBaseResponseException, SQLException {
+    public void getStoragedSequences(Run run, StringTree list) throws DataBaseResponseException, SQLException {
         System.out.println("Downloading already stored sequences list");
         final Set<String> set = new TreeSet<>();
         final String template = "SELECT readid FROM sequences WHERE runid = ?;";
@@ -170,7 +170,7 @@ public class DBService {
         System.out.println("Sequences are downloaded");
     }
 
-    public void copyTaxonomy(Map<Integer, Integer> taxons) throws SQLException, NoDataBaseResponseException {
+    public void copyTaxonomy(Map<Integer, Integer> taxons) throws SQLException, DataBaseResponseException {
         final String query = "SELECT id, parentid FROM taxonomy;";
         final ResultSet result = getStatement().executeQuery(query);
         

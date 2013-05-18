@@ -14,7 +14,7 @@ import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ngsanalyser.dbservice.DBService;
-import ngsanalyser.exception.NoDataBaseResponseException;
+import ngsanalyser.exception.DataBaseResponseException;
 
 public class Taxonomy {
     public static final Taxonomy INSTANCE = new Taxonomy();
@@ -25,7 +25,7 @@ public class Taxonomy {
     }
     
      
-    public void loadData(String path) throws TaxonomyException, SQLException, NoDataBaseResponseException {
+    public void loadData(String path) throws TaxonomyException, SQLException, DataBaseResponseException {
         if (path == null){
             INSTANCE.loadDataFromDataBase();
         }else{
@@ -33,7 +33,7 @@ public class Taxonomy {
         }
     }
     
-    public void loadDataFromDataBase() throws SQLException, NoDataBaseResponseException {
+    public void loadDataFromDataBase() throws SQLException, DataBaseResponseException {
         DBService.INSTANCE.copyTaxonomy(taxons);
     }
 

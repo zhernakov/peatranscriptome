@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ngsanalyser.exception.BLASTException;
-import ngsanalyser.exception.NoConnectionException;
+import ngsanalyser.exception.NCBIConnectionException;
 import ngsanalyser.exception.ParseException;
 import ngsanalyser.ngsdata.NGSRecord;
 
@@ -38,7 +38,7 @@ public class NCBIService {
     
     //////////
 
-    private URLConnection send(String statement) throws NoConnectionException {
+    private URLConnection send(String statement) throws NCBIConnectionException {
         final int attempts = 10;
         for (int attemp = 0; attemp < attempts; ++attemp) {
             try {
@@ -55,20 +55,20 @@ public class NCBIService {
                 }
             }
         }
-        throw new NoConnectionException();
+        throw new NCBIConnectionException();
     }
     
-    private InputStream sendQuery(String statement) throws NoConnectionException {
+    private InputStream sendQuery(String statement) throws NCBIConnectionException {
         try {
             return send(statement).getInputStream();
         } catch (IOException ex) {
-            throw new NoConnectionException();
+            throw new NCBIConnectionException();
         }
     }  
 
     //---BLAST---//
     
-    public InputStream multiMegaBlast(Collection<NGSRecord> records) throws BLASTException, ParseException, NoConnectionException {
+    public InputStream multiMegaBlast(Collection<NGSRecord> records) throws BLASTException, ParseException, NCBIConnectionException {
         final String queryId = sendBLASTQuery(records);
         waitBLASTResults(queryId);
         final InputStream stream = getBLASTResults(queryId);
@@ -76,7 +76,7 @@ public class NCBIService {
         return stream;
     }
     
-    private String sendBLASTQuery(Collection<NGSRecord> records) throws BLASTException, NoConnectionException {
+    private String sendBLASTQuery(Collection<NGSRecord> records) throws BLASTException, NCBIConnectionException {
         final String statement = composeBLASTStatement(records);
         System.out.println(statement);
         final InputStream in = sendQuery(statement);
@@ -96,7 +96,7 @@ public class NCBIService {
                 }
             }
         } catch (IOException ex) {
-            throw new NoConnectionException();
+            throw new NCBIConnectionException();
         }
         throw new BLASTException("Unable to retrieve request ID");
     }
@@ -115,7 +115,7 @@ public class NCBIService {
         return builder.toString();
     }
 
-    private void waitBLASTResults(String queryId) throws BLASTException, NoConnectionException {
+    private void waitBLASTResults(String queryId) throws BLASTException, NCBIConnectionException {
         final String statement = blastlink + "?CMD=Get&RID=" + queryId;
         System.out.println(statement);
         
@@ -143,24 +143,24 @@ public class NCBIService {
                     }
                 }
             } catch (IOException ex) {
-                throw new NoConnectionException();
+                throw new NCBIConnectionException();
             }
         }
     }
 
-    private InputStream getBLASTResults(String queryId) throws BLASTException, NoConnectionException {
+    private InputStream getBLASTResults(String queryId) throws BLASTException, NCBIConnectionException {
         final String statement = blastlink + "?CMD=Get&FORMAT_TYPE=XML&RID=" + queryId;
         return sendQuery(statement);
     }
     
-    private void sendBLASTDeleteRequest(String queryId) throws NoConnectionException {
+    private void sendBLASTDeleteRequest(String queryId) throws NCBIConnectionException {
         final String statement = blastlink + "?CMD=Delete&RID=" + queryId;
         System.out.println(statement);
         send(statement);
     }
 
     //---ELINK---//
-    public InputStream defineTaxonsSet(Iterable<String> ids) throws NoConnectionException {
+    public InputStream defineTaxonsSet(Iterable<String> ids) throws NCBIConnectionException {
         final String url = composeGetTaxonsSetStatement(ids);
         return sendQuery(url);
     }

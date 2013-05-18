@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-import ngsanalyser.exception.NoConnectionException;
+import ngsanalyser.exception.NCBIConnectionException;
 import ngsanalyser.exception.ParseException;
 import ngsanalyser.ncbiservice.blast.BlastHits;
 import ngsanalyser.ncbiservice.blast.Hit;
@@ -28,26 +28,26 @@ public class NCBIParser {
     protected NCBIParser() {
     }
     
-    public static Map<String,BlastHits> parseBlastResult(InputStream is) throws NoConnectionException, ParseException {
+    public static Map<String,BlastHits> parseBlastResult(InputStream is) throws NCBIConnectionException, ParseException {
         try {
             final BlastResultHandler handler = new BlastResultHandler();
             factory.newSAXParser().parse(is, handler);
             return handler.iterations;
         } catch (IOException ex) {
-            throw new NoConnectionException();
+            throw new NCBIConnectionException();
         } catch (Exception ex) {
             throw new ParseException(ex);
         }
         
     }
 
-    public static Set<List<String>> parseEUtilsResult(InputStream in) throws NoConnectionException, ParseException {
+    public static Set<List<String>> parseEUtilsResult(InputStream in) throws NCBIConnectionException, ParseException {
         try {
             final EUtilsResultHandler handler = new EUtilsResultHandler();
             factory.newSAXParser().parse(in, handler);
             return handler.getLinkSet();
         } catch (IOException ex) {
-            throw new NoConnectionException();
+            throw new NCBIConnectionException();
         } catch (Exception ex) {
             throw new ParseException(ex);
         }

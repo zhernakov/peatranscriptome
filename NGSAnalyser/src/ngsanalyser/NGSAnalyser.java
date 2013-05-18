@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import ngsanalyser.dbservice.DBService;
 import ngsanalyser.exception.BLASTException;
-import ngsanalyser.exception.NoConnectionException;
-import ngsanalyser.exception.NoDataBaseResponseException;
+import ngsanalyser.exception.NCBIConnectionException;
+import ngsanalyser.exception.DataBaseResponseException;
 import ngsanalyser.exception.ParseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSFile;
@@ -18,7 +18,7 @@ import ngsanalyser.taxonomy.TaxonomyException;
 
 public class NGSAnalyser {
 
-    public static void main(String[] args) throws NGSFileException, InterruptedException, TaxonomyException, ParseException, IOException, SQLException, NoConnectionException, NoDataBaseResponseException, BLASTException {
+    public static void main(String[] args) throws NGSFileException, InterruptedException, TaxonomyException, ParseException, IOException, SQLException, NCBIConnectionException, DataBaseResponseException, BLASTException {
         final Settings settings = new Settings();
         new JCommander(settings, args);
         
