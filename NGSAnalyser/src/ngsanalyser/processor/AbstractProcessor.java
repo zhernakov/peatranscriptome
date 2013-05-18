@@ -33,6 +33,7 @@ public abstract class AbstractProcessor implements NGSAddible {
     private final int waitingsize = 50;
     private final long[] waiting = new long[waitingsize];
     private int waitingcursor = 0;
+    private long waitingsum = 0;
 
     protected final NGSAddible resultstorage;
     protected final NGSAddible failedstorage;
@@ -142,8 +143,16 @@ public abstract class AbstractProcessor implements NGSAddible {
     }
 
     private void addWaitingTime(long t) {
+        waitingsum -= (waiting[waitingcursor] - t);
         waiting[waitingcursor] = t;
         waitingcursor = (waitingcursor + 1) % waitingsize;
+    }
+    
+    public void printReport() {
+        System.out.print(processorname + "\t");
+        System.out.print(threadsinwork + "/" + this.threadnumber + "\t");
+        System.out.print(waitingsum/waitingsize/1000 + "\t\t");
+        System.out.print(successfullrecords + "\t\t" + failedrecords + "\n");
     }
     
 ///////////

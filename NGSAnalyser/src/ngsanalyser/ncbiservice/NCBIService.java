@@ -78,7 +78,7 @@ public class NCBIService {
     
     private String sendBLASTQuery(Collection<NGSRecord> records) throws BLASTException, NCBIConnectionException {
         final String statement = composeBLASTStatement(records);
-        System.out.println(statement);
+//        System.out.println(statement);
         final InputStream in = sendQuery(statement);
         final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         
@@ -117,7 +117,7 @@ public class NCBIService {
 
     private void waitBLASTResults(String queryId) throws BLASTException, NCBIConnectionException {
         final String statement = blastlink + "?CMD=Get&RID=" + queryId;
-        System.out.println(statement);
+//        System.out.println(statement);
         
         while (true) {
             final InputStream in = sendQuery(statement);
@@ -155,7 +155,7 @@ public class NCBIService {
     
     private void sendBLASTDeleteRequest(String queryId) throws NCBIConnectionException {
         final String statement = blastlink + "?CMD=Delete&RID=" + queryId;
-        System.out.println(statement);
+//        System.out.println(statement);
         send(statement);
     }
 

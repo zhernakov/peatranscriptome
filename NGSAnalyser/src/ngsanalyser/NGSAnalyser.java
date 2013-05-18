@@ -33,5 +33,6 @@ public class NGSAnalyser {
         
         final Processing pr = new Processing(run, fastqfile);
         pr.startProcessing();
+        pr.startMonitoring();
     }
 }

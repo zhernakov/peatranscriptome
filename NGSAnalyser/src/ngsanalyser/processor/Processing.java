@@ -1,6 +1,8 @@
 package ngsanalyser.processor;
 
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import ngsanalyser.dbservice.DBService;
 import ngsanalyser.exception.DataBaseResponseException;
 import ngsanalyser.experiment.Run;
@@ -25,10 +27,10 @@ public class Processing {
         this.run = run;
         this.source = source;
         
-         DBService.INSTANCE.getStoragedSequences(run, stored);
+        DBService.INSTANCE.getStoragedSequences(run, stored);
         
-        storager = new Storager(null, failedstorage, 2, 7, run);
-        analyser = new HitsAnalyzer(storager, failedstorage, 2, 1e-25);
+        storager = new Storager(null, failedstorage, 2, 20, run);
+        analyser = new HitsAnalyzer(storager, failedstorage, 3, 1e-25);
         blaster = new MultiBLASTer(analyser, failedstorage, 4, 20);
     }
 
@@ -47,4 +49,25 @@ public class Processing {
         })).start();
     }
 
+    public void startMonitoring() {
+        final Thread monitor = new Thread(new Runnable(){
+
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        Thread.sleep(60000);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Processing.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    System.out.println("Processor\tThreads\tWaiting, ms\tSuccessful\tFailed");
+                    blaster.printReport();
+                    analyser.printReport();
+                    storager.printReport();
+                }
+            }
+        });
+        monitor.setDaemon(true);
+        monitor.start();
+    }
 }
