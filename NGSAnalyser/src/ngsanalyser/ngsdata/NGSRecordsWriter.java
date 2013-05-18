@@ -1,14 +1,13 @@
 package ngsanalyser.ngsdata;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collection;
 
 public class NGSRecordsWriter implements NGSAddible {
     private final String name;
-    private BufferedWriter writer;
+    private PrintWriter  writer;
     
     public NGSRecordsWriter(String name) {
         this.name = name;
@@ -18,7 +17,7 @@ public class NGSRecordsWriter implements NGSAddible {
     public void addNGSRecord(NGSRecord record) {
         try {
             if (writer == null) {
-                writer = new BufferedWriter(new FileWriter(new File(name)));
+                writer = new PrintWriter (new File(name));
             }
             writer.write(record.recordid);
             writer.write("\n");
@@ -30,6 +29,7 @@ public class NGSRecordsWriter implements NGSAddible {
             writer.write("\n{");
             writer.write(record.getExceptionMessage());
             writer.write("}\n");
+            writer.flush();
         } catch (IOException ex) {
             System.err.println("Can't write failed records to file");
         }
@@ -45,11 +45,8 @@ public class NGSRecordsWriter implements NGSAddible {
     @Override
     public void terminate() {
         if (writer != null) {
-            try {
-                writer.close();
-            } catch (IOException ex) {
-                System.err.println("Some of failed records can be lost in file");
-            }
+            writer.flush();
+            writer.close();
         }
     }
 

@@ -10,9 +10,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import ngsanalyser.exception.BLASTException;
 import ngsanalyser.exception.NoDataBaseResponseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSRecord;
+import ngsanalyser.processor.StringTree;
 
 public class DBService {
     private static int getId(ResultSet result) throws SQLException {
@@ -135,10 +137,10 @@ public class DBService {
         return getRunId(expdbid, secretid, title);
     }
   
-    public void addSequences(Run run, Collection<NGSRecord> records) throws SQLException, NoDataBaseResponseException {
+    public void addSequences(Run run, Collection<NGSRecord> records) throws SQLException, NoDataBaseResponseException, BLASTException {
         final String template = "INSERT INTO sequences "
-                + "(runid, readid, additional, sequence, quality, length, taxid) "
-                + "VALUES (" + run.db_runid + ", ?, ?, ?, ?, ?, ?)";
+                + "(runid, readid, additional, sequence, quality, length, taxid, blast) "
+                + "VALUES (" + run.db_runid + ", ?, ?, ?, ?, ?, ?, ?)";
         final PreparedStatement statement = getPreparedStatement(template);
        
         for (final NGSRecord record : records) {
@@ -148,12 +150,13 @@ public class DBService {
             statement.setString(4, record.quality);
             statement.setInt(5, record.length);
             statement.setInt(6, record.getTaxonId());
+            statement.setBlob(7, record.getBLASTHitsSerialized());
             statement.addBatch();
         }
         statement.executeBatch();
     }
 
-    public Set<String> getStoragedSequences(Run run) throws NoDataBaseResponseException, SQLException {
+    public void getStoragedSequences(Run run, StringTree list) throws NoDataBaseResponseException, SQLException {
         System.out.println("Downloading already stored sequences list");
         final Set<String> set = new TreeSet<>();
         final String template = "SELECT readid FROM sequences WHERE runid = ?;";
@@ -162,10 +165,9 @@ public class DBService {
         final ResultSet result = statement.executeQuery();
 
         while (result.next()) {
-            set.add(result.getString("readid"));
+            list.addString(result.getString("readid"));
         }
         System.out.println("Sequences are downloaded");
-        return set;
     }
 
     public void copyTaxonomy(Map<Integer, Integer> taxons) throws SQLException, NoDataBaseResponseException {

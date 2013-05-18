@@ -1,68 +1,48 @@
 package ngsanalyser.processor;
 
+import java.sql.SQLException;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import ngsanalyser.dbservice.DBService;
+import ngsanalyser.exception.NoDataBaseResponseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSAddible;
 import ngsanalyser.ngsdata.NGSRecord;
 
-public class Storager extends AbstractProcessor {
+public class Storager extends AbstractMultiProcessor {
     private final Run run;
-    private List<NGSRecord> storage = new LinkedList<>();
-    private int querysize = 10;
-    private int count = 0;
 
-    public Storager(NGSAddible failedstorage, int threadnumber, Run run) {
-        super(null, failedstorage, threadnumber);
+    public Storager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, int bunchsize, Run run) {
+        super("Storager", resultstorage, failedstorage, threadnumber, bunchsize);
         this.run = run;
     }
 
     @Override
-    public synchronized void addNGSRecord(NGSRecord record) {
-        storage.add(record);
-        if (++count == querysize) {
-            flushStorage(false);
-        }
-    }
-
-    @Override
-    public synchronized void addNGSRecordsCollection(Collection<NGSRecord> records) {
-        storage.addAll(records);
-        if ((count += records.size()) >= querysize) {
-            flushStorage(false);
-        }
-    }
-
-    private void flushStorage(boolean terminated) {
-        while (storage.size() >= querysize) {
-            final List<NGSRecord> sublist = new LinkedList<>();
-            for (int i = 0; i < querysize; ++i) {
-                sublist.add(storage.remove(0));
-            }
-            count -= querysize;
-            startStorageProcedure(sublist);
-        }
-        if (terminated) {
-            final List<NGSRecord> sublist = new LinkedList<>();
-            while (!storage.isEmpty()) {
-                sublist.add(storage.remove(0));
-            }
-            count = 0;
-            if (!sublist.isEmpty()) {
-                startStorageProcedure(sublist);
-            }
-        }
+    protected Process createProcess(Collection<NGSRecord> bunch) {
+        return new Storaging(bunch);
     }
     
-    private void startStorageProcedure(List<NGSRecord> records) {
-        final Storaging storaging = new Storaging(this, failedstorage, run, records);
-        startNewThread(storaging);
-    }
+    /////////////
+    
+    private class Storaging extends Process {
+        private final Collection<NGSRecord> records;
 
-    @Override
-    public synchronized void terminate() {
-        flushStorage(true);
-        super.terminate();
+        public Storaging(Collection<NGSRecord> records) {
+            this.records = records;
+        }
+
+        @Override
+        protected void processing() throws SQLException, NoDataBaseResponseException {
+            DBService.INSTANCE.addSequences(run, records);
+        }
+
+        @Override
+        protected Process cloneProcess() {
+            return new Storaging(records);
+        }
+
+        @Override
+        protected Collection<NGSRecord> getRecords() {
+            return records;
+        }
     }
 }

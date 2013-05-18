@@ -1,12 +1,13 @@
 package ngsanalyser.ncbiservice.blast;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class BlastHits {
+public class BlastHits implements Serializable {
     
     private List<Hit> hits = new LinkedList<>();
     

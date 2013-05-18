@@ -1,4 +1,4 @@
-package ngsanalyser.processor2;
+package ngsanalyser.processor;
 
 import java.util.Collection;
 import java.util.LinkedList;

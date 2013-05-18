@@ -1,76 +1,177 @@
 package ngsanalyser.ncbiservice;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collection;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import ngsanalyser.exception.BLASTException;
 import ngsanalyser.exception.NoConnectionException;
 import ngsanalyser.exception.ParseException;
-import ngsanalyser.ncbiservice.blast.BlastHits;
-import ngsanalyser.ncbiservice.blast.BlastOutputHandler;
-import org.biojava3.ws.alignment.qblast.BlastProgramEnum;
-import org.biojava3.ws.alignment.qblast.NCBIQBlastAlignmentProperties;
-import org.biojava3.ws.alignment.qblast.NCBIQBlastOutputProperties;
-import org.biojava3.ws.alignment.qblast.NCBIQBlastService;
+import ngsanalyser.ngsdata.NGSRecord;
 
 public class NCBIService {
-    public static final NCBIService INSTANCE = new NCBIService(); 
+    public static final NCBIService INSTANCE = new NCBIService();
+    private static final Timer timer = new Timer(250);
+    
+    private static final String blastlink = "http://www.ncbi.nlm.nih.gov/blast/Blast.cgi";
+    private static final String eutilslink = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi";
+    private static final int waitinterval = 30000;
+    
     private NCBIService() {
     }
-
-    private static final NCBIQBlastService blastservice = new NCBIQBlastService();
-    private static final NCBIQBlastAlignmentProperties alignprop = new NCBIQBlastAlignmentProperties();
-    private static final NCBIQBlastOutputProperties outputprop = new NCBIQBlastOutputProperties();
-
-    private static final NCBIQueryService ncbiservice = new NCBIQueryService();
     
-    private static final SAXParserFactory parserfactory = SAXParserFactory.newInstance();
-    
-    private static final Timer timer = new Timer(250);
-
-    static {
-        alignprop.setBlastProgram(BlastProgramEnum.megablast);
-        alignprop.setBlastDatabase("nr");
-    }
-    
-    public BlastHits blast(String sequence) throws NoConnectionException, ParseException {
-        timer.start();
-        final InputStream is = sendBLASTQuery(sequence);
-        return parseBLASTResult(is);
-    }
-    
-    private InputStream sendBLASTQuery(String sequence) throws NoConnectionException {
+    public static void printStream(InputStream is) {
         try {
-            final String rid = blastservice.sendAlignmentRequest(sequence, alignprop);
-            while (!blastservice.isReady(rid)) {
-                Thread.sleep(5000);
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
             }
-            return blastservice.getAlignmentResults(rid, outputprop);
-        } catch (Exception ex) {
-            throw new NoConnectionException(ex.getMessage());
-        }
-    }
-    
-    private BlastHits parseBLASTResult(InputStream is) throws NoConnectionException, ParseException {
-        try {
-            final BlastOutputHandler handler = new BlastOutputHandler();
-            final SAXParser parser = parserfactory.newSAXParser();
-            parser.parse(is, handler);
-            return handler.getResult();
         } catch (IOException ex) {
-            throw new NoConnectionException(ex.getMessage());
-        } catch (Exception ex) {
-            throw new ParseException(ex.getMessage());
         }
     }
     
-    public InputStream sendELinkQuery() {
-        return null;
+    //////////
+
+    private URLConnection send(String statement) throws NoConnectionException {
+        final int attempts = 10;
+        for (int attemp = 0; attemp < attempts; ++attemp) {
+            try {
+                final URL url = new URL(statement);
+                timer.getPermission();
+                final URLConnection connection = url.openConnection();
+                connection.setConnectTimeout(10000);
+                return connection;
+            } catch (IOException ex) {
+                try {
+                    Thread.sleep(waitinterval);
+                } catch (InterruptedException ex1) {
+
+                }
+            }
+        }
+        throw new NoConnectionException();
+    }
+    
+    private InputStream sendQuery(String statement) throws NoConnectionException {
+        try {
+            return send(statement).getInputStream();
+        } catch (IOException ex) {
+            throw new NoConnectionException();
+        }
+    }  
+
+    //---BLAST---//
+    
+    public InputStream multiMegaBlast(Collection<NGSRecord> records) throws BLASTException, ParseException, NoConnectionException {
+        final String queryId = sendBLASTQuery(records);
+        waitBLASTResults(queryId);
+        final InputStream stream = getBLASTResults(queryId);
+        sendBLASTDeleteRequest(queryId);
+        return stream;
+    }
+    
+    private String sendBLASTQuery(Collection<NGSRecord> records) throws BLASTException, NoConnectionException {
+        final String statement = composeBLASTStatement(records);
+        System.out.println(statement);
+        final InputStream in = sendQuery(statement);
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                if (!line.contains("class=\"error\"") && !line.contains("Message ID#")) {
+                    if (line.contains("RID = ")) {
+                        reader.close();
+                        return line.split("=")[1].trim();
+                    }
+                } else {
+                    final String cause = line.split("</p></li></ul>")[0].split("<p class=\"error\">")[1].trim();
+                    throw new BLASTException("NCBI QBlast refused this request because: " + cause);
+                }
+            }
+        } catch (IOException ex) {
+            throw new NoConnectionException();
+        }
+        throw new BLASTException("Unable to retrieve request ID");
     }
 
-    public Collection<Integer> getTaxIdsSet(Iterable<String> seqids) throws NoConnectionException, ParseException {
-        timer.start();
-        return ncbiservice.defineTaxonIds(seqids);
+    private String composeBLASTStatement(Collection<NGSRecord> records) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(blastlink)
+                .append("?CMD=Put&PROGRAM=blastn&MEGABLAST=on&DATABASE=nr&QUERY=");
+        for (final NGSRecord record : records) {
+            builder.append("%3E")
+                    .append(record.recordid)
+                    .append("%0D%0A")
+                    .append(record.sequence)
+                    .append("%0D%0A");
+        }
+        return builder.toString();
+    }
+
+    private void waitBLASTResults(String queryId) throws BLASTException, NoConnectionException {
+        final String statement = blastlink + "?CMD=Get&RID=" + queryId;
+        System.out.println(statement);
+        
+        while (true) {
+            final InputStream in = sendQuery(statement);
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            String line;
+            try {
+                while ((line = reader.readLine()) != null) {
+                    if (line.contains("READY")) {
+                        reader.close();
+                        return;
+                    } else if (line.contains("WAITING")) {
+                        try {
+                            Thread.sleep(this.waitinterval);
+                        } catch (InterruptedException ex) {
+                            //TODO
+                            Logger.getLogger(NCBIService.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        reader.close();
+                        break;
+                    } else if (line.contains("UNKNOWN")) {
+                        reader.close();
+                        throw new BLASTException("Unknown request id - no results exist for it. Given id = " + queryId);
+                    }
+                }
+            } catch (IOException ex) {
+                throw new NoConnectionException();
+            }
+        }
+    }
+
+    private InputStream getBLASTResults(String queryId) throws BLASTException, NoConnectionException {
+        final String statement = blastlink + "?CMD=Get&FORMAT_TYPE=XML&RID=" + queryId;
+        return sendQuery(statement);
+    }
+    
+    private void sendBLASTDeleteRequest(String queryId) throws NoConnectionException {
+        final String statement = blastlink + "?CMD=Delete&RID=" + queryId;
+        System.out.println(statement);
+        send(statement);
+    }
+
+    //---ELINK---//
+    public InputStream defineTaxonsSet(Iterable<String> ids) throws NoConnectionException {
+        final String url = composeGetTaxonsSetStatement(ids);
+        return sendQuery(url);
+    }
+        
+    private String composeGetTaxonsSetStatement(Iterable<String> ids) {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(eutilslink)
+                .append("?dbfrom=nucleotide&db=taxonomy&id=");
+        for (final String id : ids) {
+            builder.append(id).append(",");
+        }
+        return builder.substring(0, builder.length() - 1);
     }
 }

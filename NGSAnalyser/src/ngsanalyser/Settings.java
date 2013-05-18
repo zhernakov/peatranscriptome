@@ -10,7 +10,7 @@ public class Settings {
     public String run;
 
     @Parameter(names= {"-s", "--ngsfile"}, description = "file reads", required = false)
-    public String ngsfile = "D:\\COT\\SRR176508.fastq.part6.fastq.part9.fastq";
+    public String ngsfile = "D:\\COT\\SRR176508.fastq.part6.fastq.part13.fastq";
 
     @Parameter(names= {"-u", "--url"}, description = "bd url", required = false)
     public String url = "193.218.141.85:1981";

@@ -1,6 +1,8 @@
 package ngsanalyser.ncbiservice.blast;
 
-public class Hsp {
+import java.io.Serializable;
+
+public class Hsp implements Serializable {
     private double  bitscore;
     private int     score;
     private double  evalue;

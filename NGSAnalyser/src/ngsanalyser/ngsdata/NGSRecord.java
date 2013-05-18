@@ -1,7 +1,15 @@
 package ngsanalyser.ngsdata;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import ngsanalyser.exception.BLASTException;
 import ngsanalyser.ncbiservice.blast.BlastHits;
 
 public class NGSRecord {
@@ -56,6 +64,21 @@ public class NGSRecord {
         return  blasthits;
     }
   
+    public InputStream getBLASTHitsSerialized() throws BLASTException {
+        try {
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(blasthits);
+            oos.flush();
+            oos.close();
+            return new ByteArrayInputStream(baos.toByteArray());
+        } catch (IOException ex) {
+            //TODO
+            Logger.getLogger(NGSRecord.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        throw new BLASTException("Can't serialize BLASTHits");
+    }
+     
     public int getTaxonId() {
         return taxid;
     }

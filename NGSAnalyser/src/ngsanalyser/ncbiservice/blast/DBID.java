@@ -1,5 +1,7 @@
 package ngsanalyser.ncbiservice.blast;
 
-public enum DBID {
+import java.io.Serializable;
+
+public enum DBID implements Serializable {
     gi, gb
 }

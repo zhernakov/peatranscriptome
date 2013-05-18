@@ -12,7 +12,7 @@ import ngsanalyser.exception.ParseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSFile;
 import ngsanalyser.ngsdata.NGSFileException;
-import ngsanalyser.processor2.Processing;
+import ngsanalyser.processor.Processing;
 import ngsanalyser.taxonomy.Taxonomy;
 import ngsanalyser.taxonomy.TaxonomyException;
 
@@ -33,8 +33,5 @@ public class NGSAnalyser {
         
         final Processing pr = new Processing(run, fastqfile);
         pr.startProcessing();
-
-        //        pr.startMonitoring();
-        
     }
 }

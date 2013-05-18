@@ -1,60 +1,71 @@
 package ngsanalyser.processor;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.sql.SQLException;
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ngsanalyser.exception.BLASTException;
+import ngsanalyser.exception.NoConnectionException;
+import ngsanalyser.exception.NoDataBaseResponseException;
+import ngsanalyser.exception.ParseException;
 import ngsanalyser.ngsdata.NGSAddible;
+import ngsanalyser.ngsdata.NGSRecord;
+import ngsanalyser.taxonomy.TaxonomyException;
 
 public abstract class AbstractProcessor implements NGSAddible {
+    private final String processorname;
+    
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private int threadnumber;
-    private int threadinwork = 0;
+    private int threadsinwork = 0;
 
-    private final int waitingsize = 20;
+    private int startedthreads = 0;
+    private int successfullthreads = 0;
+    private int restartedthreads = 0;
+    private int failedthreads = 0;
+
+    private int successfullrecords = 0;
+    private int failedrecords = 0;
+
+    private final int waitingsize = 50;
     private final long[] waiting = new long[waitingsize];
     private int waitingcursor = 0;
-    private int startedthreads = 0;
 
     protected final NGSAddible resultstorage;
     protected final NGSAddible failedstorage;
 
-    protected AbstractProcessor(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
+    public AbstractProcessor(String name, NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
+        this.processorname = name;
         this.resultstorage = resultstorage;
         this.failedstorage = failedstorage;
         this.threadnumber = threadnumber;
     }
+
+    @Override
+    public abstract void addNGSRecord(NGSRecord record);
     
-    protected synchronized void startNewThread(Runnable thread) {
-        try {
-            long start = System.nanoTime();
-            while (threadinwork >= threadnumber) {
-                wait();
-            }
-            executor.execute(thread);
-            ++threadinwork;
-            addWaitingTime(System.nanoTime() - start);
-        } catch (InterruptedException ex) {
-            //TODO
-            Logger.getLogger(AbstractProcessor.class.getName()).log(Level.SEVERE, null, ex);
+    @Override
+    public final void addNGSRecordsCollection(Collection<NGSRecord> records) {
+        for(final NGSRecord record : records) {
+            addNGSRecord(record);
         }
-    }
-    
-    protected void restartThread(Runnable thread) {
-        executor.execute(thread);
-    }
-    
-    protected synchronized void eliminateThread(Runnable thread) {
-        --threadinwork;
-        notify();
     }
 
     @Override
-    public synchronized void terminate() {
-        while (threadinwork != 0) {
+    public void terminate() {
+        (new Thread(new Runnable() {
+            @Override
+            public void run() {
+                initiateTermination();
+            }
+        })).start();
+    }
+    
+    private synchronized void initiateTermination() {
+        while (threadsinwork != 0) {
             try {
                 wait();
             } catch (InterruptedException ex) {
@@ -63,34 +74,98 @@ public abstract class AbstractProcessor implements NGSAddible {
             }
         }
         executor.shutdown();
-        failedstorage.terminate();
-        resultstorage.terminate();
+        if (resultstorage != null) {
+            resultstorage.terminate();
+        } else {
+            failedstorage.terminate();
+        }
+        System.out.println("Processor " + processorname +" is terminated:"
+                + "\n\tstarted threads:" + startedthreads
+                + "\n\tsuccessfull threads:" + successfullthreads 
+                + "\n\ttreated records: " + successfullrecords);
     }
+    
 
     @Override
     public int getNumber() {
-        return startedthreads;
+        return successfullrecords + failedrecords;
     }
 
-    public int getThreadInWork() {
-        return threadinwork;
+///////////
+    
+    protected synchronized void startNewProcess(Process process) {
+        try {
+            long start = System.nanoTime();
+            while (threadsinwork >= threadnumber) {
+                wait();
+            }
+            addWaitingTime(System.nanoTime() - start);
+            executor.execute(process);
+            ++threadsinwork;
+            ++startedthreads;
+        } catch (InterruptedException ex) {
+            //TODO
+            Logger.getLogger(AbstractProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void restartProcess(Process process) {
+        executor.execute(process);
+        ++restartedthreads;
+    }
+
+    private void processingSuccessfullyFinished(Collection<NGSRecord> records) {
+        if (resultstorage != null) {
+            resultstorage.addNGSRecordsCollection(records);
+        }
+        ++successfullthreads;
+        successfullrecords += records.size();
+        synchronized(this) {
+            --threadsinwork;
+            notify();
+        }
+    }
+    
+    private void processingCanNotBeFinished(Collection<NGSRecord> records) {
+        if (failedstorage != null) {
+            failedstorage.addNGSRecordsCollection(records);
+        }
+        ++failedthreads;
+        failedrecords += records.size();
+        synchronized(this) {
+            --threadsinwork;
+            notify();
+        }
     }
 
     private void addWaitingTime(long t) {
         waiting[waitingcursor] = t;
         waitingcursor = (waitingcursor + 1) % waitingsize;
-        ++startedthreads;
     }
     
-    public long meanWaitingTime() {
-        int number = startedthreads / waitingsize > 0 ? waitingsize : startedthreads;
-        if (number == 0) {
-            return 0;
+///////////
+    
+    protected abstract class Process implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                processing();
+                processingSuccessfullyFinished(getRecords());
+            } catch (NoConnectionException ex) {
+                restartProcess(cloneProcess());
+            } catch (BLASTException | ParseException | TaxonomyException ex) {
+                processingCanNotBeFinished(getRecords());
+            } catch (SQLException ex) {
+                Logger.getLogger(AbstractProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (NoDataBaseResponseException ex) {
+                Logger.getLogger(AbstractProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        long sum = 0;
-        for (int i = 0; i < number; ++i) {
-            sum += this.waiting[i];
-        }
-        return sum / number;
+        
+        protected abstract void processing() throws NoConnectionException, BLASTException, ParseException, TaxonomyException, SQLException, NoDataBaseResponseException ;
+        protected abstract Process cloneProcess();
+        protected abstract Collection<NGSRecord> getRecords();
     }
+    
 }
