@@ -30,8 +30,8 @@ public class Processing {
         DBService.INSTANCE.getStoragedSequences(run, stored);
         
         storager = new Storager(null, failedstorage, 2, 20, run);
-        analyser = new HitsAnalyzer(storager, failedstorage, 5, 1e-25);
-        blaster = new MultiBLASTer(analyser, failedstorage, 40, 20);
+        analyser = new HitsAnalyzer(storager, failedstorage, 25, 1e-25);
+        blaster = new MultiBLASTer(analyser, failedstorage, 50, 30);
     }
 
     public void startProcessing() {
@@ -56,7 +56,7 @@ public class Processing {
             public void run() {
                 while (true) {
                     try {
-                        Thread.sleep(10000);
+                        Thread.sleep(60000);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Processing.class.getName()).log(Level.SEVERE, null, ex);
                     }

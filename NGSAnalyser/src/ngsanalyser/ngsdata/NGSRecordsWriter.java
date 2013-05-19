@@ -20,15 +20,15 @@ public class NGSRecordsWriter implements NGSAddible {
                 writer = new PrintWriter (new File(name));
             }
             writer.write(record.recordid);
-            writer.write("\n");
+            writer.write("\r\n");
             writer.write(record.additionalinfo);
-            writer.write("\n");
+            writer.write("\r\n");
             writer.write(record.sequence);
-            writer.write("\n");
+            writer.write("\r\n");
             writer.write(record.quality);
-            writer.write("\n{");
+            writer.write("\r\n{");
             writer.write(record.getExceptionMessage());
-            writer.write("}\n");
+            writer.write("}\r\n");
             writer.flush();
         } catch (IOException ex) {
             System.err.println("Can't write failed records to file");
