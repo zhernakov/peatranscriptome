@@ -165,7 +165,7 @@ public abstract class AbstractProcessor implements NGSAddible {
                 processing();
                 processingSuccessfullyFinished(getRecords());
             } catch (NCBIConnectionException | DataBaseResponseException ex) {
-                restartProcess(cloneProcess());
+                processingCanNotBeFinished(getRecords(), ex);
             } catch (BLASTException | ParseException | TaxonomyException | SQLException ex) {
                 processingCanNotBeFinished(getRecords(), ex);
             } catch (Exception ex) {

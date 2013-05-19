@@ -62,7 +62,7 @@ public class NCBIService {
         try {
             return send(statement).getInputStream();
         } catch (IOException ex) {
-            throw new NCBIConnectionException();
+            throw new NCBIConnectionException(ex);
         }
     }  
 
@@ -96,7 +96,7 @@ public class NCBIService {
                 }
             }
         } catch (IOException ex) {
-            throw new NCBIConnectionException();
+            throw new NCBIConnectionException(ex);
         }
         throw new BLASTException("Unable to retrieve request ID");
     }
@@ -143,7 +143,7 @@ public class NCBIService {
                     }
                 }
             } catch (IOException ex) {
-                throw new NCBIConnectionException();
+                throw new NCBIConnectionException(ex);
             }
         }
     }
