@@ -101,13 +101,14 @@ public abstract class AbstractProcessor implements NGSAddible {
                 wait();
             }
             addWaitingTime(System.nanoTime() - start);
-            executor.execute(process);
-            ++threadsinwork;
-            ++startedthreads;
         } catch (InterruptedException ex) {
             //TODO
             Logger.getLogger(AbstractProcessor.class.getName()).log(Level.SEVERE, null, ex);
         }
+        executor.execute(process);
+        ++threadsinwork;
+        ++startedthreads;
+        notify();
     }
     
     private void restartProcess(Process process) {

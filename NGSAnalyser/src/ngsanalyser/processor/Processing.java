@@ -30,7 +30,7 @@ public class Processing {
         DBService.INSTANCE.getStoragedSequences(run, stored);
         
         storager = new Storager(null, failedstorage, 2, 20, run);
-        analyser = new HitsAnalyzer(storager, failedstorage, 25, 1e-25);
+        analyser = new HitsAnalyzer(storager, failedstorage, 40, 1e-25);
         blaster = new MultiBLASTer(analyser, failedstorage, 50, 20);
     }
 
