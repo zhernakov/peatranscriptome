@@ -12,6 +12,7 @@ import ngsanalyser.ncbiservice.NCBIParser;
 import ngsanalyser.ncbiservice.NCBIService;
 import ngsanalyser.ncbiservice.blast.DBID;
 import ngsanalyser.ngsdata.NGSAddible;
+import ngsanalyser.ngsdata.NGSAddibleExc;
 import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.taxonomy.Taxonomy;
 import ngsanalyser.taxonomy.TaxonomyException;
@@ -19,7 +20,7 @@ import ngsanalyser.taxonomy.TaxonomyException;
 public class HitsAnalyzer extends AbstractSingleProcessor {
     private final double evalue;
 
-    public HitsAnalyzer(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, double evalue) {
+    public HitsAnalyzer(NGSAddible resultstorage, NGSAddibleExc failedstorage, int threadnumber, double evalue) {
         super("HitsAnalyzer", resultstorage, failedstorage, threadnumber);
         this.evalue = evalue;
     }

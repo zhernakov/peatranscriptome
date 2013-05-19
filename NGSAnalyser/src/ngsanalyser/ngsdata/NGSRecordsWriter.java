@@ -19,12 +19,13 @@ public class NGSRecordsWriter implements NGSAddible {
             if (writer == null) {
                 writer = new PrintWriter (new File(name));
             }
+            writer.write("@");
             writer.write(record.recordid);
-            writer.write("\r\n");
+            writer.write(" ");
             writer.write(record.additionalinfo);
             writer.write("\r\n");
             writer.write(record.sequence);
-            writer.write("\r\n");
+            writer.write("\r\n+\r\n");
             writer.write(record.quality);
             writer.write("\r\n{");
             writer.write(record.getExceptionMessage());

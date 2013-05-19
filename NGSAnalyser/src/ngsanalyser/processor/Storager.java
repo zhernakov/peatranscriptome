@@ -7,12 +7,13 @@ import ngsanalyser.exception.BLASTException;
 import ngsanalyser.exception.DataBaseResponseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSAddible;
+import ngsanalyser.ngsdata.NGSAddibleExc;
 import ngsanalyser.ngsdata.NGSRecord;
 
 public class Storager extends AbstractMultiProcessor {
     private final Run run;
 
-    public Storager(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, int bunchsize, Run run) {
+    public Storager(NGSAddible resultstorage, NGSAddibleExc failedstorage, int threadnumber, int bunchsize, Run run) {
         super("Storager", resultstorage, failedstorage, threadnumber, bunchsize);
         this.run = run;
     }

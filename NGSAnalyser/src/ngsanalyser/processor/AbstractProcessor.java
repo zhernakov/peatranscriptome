@@ -11,6 +11,7 @@ import ngsanalyser.exception.NCBIConnectionException;
 import ngsanalyser.exception.DataBaseResponseException;
 import ngsanalyser.exception.ParseException;
 import ngsanalyser.ngsdata.NGSAddible;
+import ngsanalyser.ngsdata.NGSAddibleExc;
 import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.taxonomy.TaxonomyException;
 
@@ -36,9 +37,9 @@ public abstract class AbstractProcessor implements NGSAddible {
     private long waitingsum = 0;
 
     protected final NGSAddible resultstorage;
-    protected final NGSAddible failedstorage;
+    protected final NGSAddibleExc failedstorage;
 
-    public AbstractProcessor(String name, NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
+    public AbstractProcessor(String name, NGSAddible resultstorage, NGSAddibleExc failedstorage, int threadnumber) {
         this.processorname = name;
         this.resultstorage = resultstorage;
         this.failedstorage = failedstorage;
@@ -130,10 +131,7 @@ public abstract class AbstractProcessor implements NGSAddible {
     
     private void processingCanNotBeFinished(Collection<NGSRecord> records, Exception ex) {
         if (failedstorage != null) {
-            for (final NGSRecord record : records) {
-                record.loqError(ex);
-                failedstorage.addNGSRecord(record);
-            }
+            failedstorage.addNGSRecordsCollection(records, ex);
         }
         ++failedthreads;
         failedrecords += records.size();

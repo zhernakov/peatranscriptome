@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import ngsanalyser.ngsdata.NGSAddible;
+import ngsanalyser.ngsdata.NGSAddibleExc;
 import ngsanalyser.ngsdata.NGSRecord;
 
 public abstract class AbstractMultiProcessor extends AbstractProcessor {
@@ -11,7 +12,7 @@ public abstract class AbstractMultiProcessor extends AbstractProcessor {
     private int inbunch = 0;
     private List<NGSRecord> bunchstorage = new LinkedList<>();
 
-    public AbstractMultiProcessor(String name, NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, int bunchsize) {
+    public AbstractMultiProcessor(String name, NGSAddible resultstorage, NGSAddibleExc failedstorage, int threadnumber, int bunchsize) {
         super(name, resultstorage, failedstorage, threadnumber);
         this.bunchsize = bunchsize;
     }

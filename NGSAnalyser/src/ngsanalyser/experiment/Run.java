@@ -33,4 +33,8 @@ public class Run {
         }
         return dbid;
     }
+
+    public String getTitle() {
+        return title;
+    }
 }

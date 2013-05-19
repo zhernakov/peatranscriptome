@@ -1,11 +1,12 @@
 package ngsanalyser.processor;
 
 import ngsanalyser.ngsdata.NGSAddible;
+import ngsanalyser.ngsdata.NGSAddibleExc;
 import ngsanalyser.ngsdata.NGSRecord;
 
 public abstract class AbstractSingleProcessor extends AbstractProcessor {
 
-    public AbstractSingleProcessor(String name, NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber) {
+    public AbstractSingleProcessor(String name, NGSAddible resultstorage, NGSAddibleExc failedstorage, int threadnumber) {
         super(name, resultstorage, failedstorage, threadnumber);
     }
     

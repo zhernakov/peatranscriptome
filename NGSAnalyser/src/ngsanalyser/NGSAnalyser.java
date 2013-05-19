@@ -1,5 +1,6 @@
 package ngsanalyser;
 
+import ngsanalyser.processing.BlastAnalyseStorage;
 import ngsanalyser.experiment.Experiment;
 import com.beust.jcommander.JCommander;
 import java.io.IOException;
@@ -12,7 +13,6 @@ import ngsanalyser.exception.ParseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSFile;
 import ngsanalyser.ngsdata.NGSFileException;
-import ngsanalyser.processor.Processing;
 import ngsanalyser.taxonomy.Taxonomy;
 import ngsanalyser.taxonomy.TaxonomyException;
 
@@ -31,7 +31,7 @@ public class NGSAnalyser {
         final NGSFile fastqfile = NGSFile.NGSFileFactory(settings.ngsfile);
         
         
-        final Processing pr = new Processing(run, fastqfile);
+        final BlastAnalyseStorage pr = new BlastAnalyseStorage(run, fastqfile);
         pr.startProcessing();
         pr.startMonitoring();
     }

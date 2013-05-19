@@ -10,11 +10,12 @@ import ngsanalyser.ncbiservice.NCBIParser;
 import ngsanalyser.ncbiservice.NCBIService;
 import ngsanalyser.ncbiservice.blast.BlastHits;
 import ngsanalyser.ngsdata.NGSAddible;
+import ngsanalyser.ngsdata.NGSAddibleExc;
 import ngsanalyser.ngsdata.NGSRecord;
 
 public class MultiBLASTer extends AbstractMultiProcessor {
 
-    public MultiBLASTer(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, int bunchsize) {
+    public MultiBLASTer(NGSAddible resultstorage, NGSAddibleExc failedstorage, int threadnumber, int bunchsize) {
         super("MultiBLASTer", resultstorage, failedstorage, threadnumber, bunchsize);
     }
 

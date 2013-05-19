@@ -1,4 +1,4 @@
-package ngsanalyser.processor;
+package ngsanalyser.processing;
 
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -8,26 +8,32 @@ import ngsanalyser.exception.DataBaseResponseException;
 import ngsanalyser.experiment.Run;
 import ngsanalyser.ngsdata.NGSCollectable;
 import ngsanalyser.ngsdata.NGSRecord;
-import ngsanalyser.ngsdata.NGSRecordsWriter;
+import ngsanalyser.ngsdata.NGSRecordsExcWriter;
+import ngsanalyser.processor.HitsAnalyzer;
+import ngsanalyser.processor.MultiBLASTer;
+import ngsanalyser.processor.Storager;
+import ngsanalyser.processor.StringTree;
 
-public class Processing {
+public class BlastAnalyseStorage {
     private final Run run;
     private final NGSCollectable source;
     
     private final StringTree stored = new StringTree();
 
-    private final NGSRecordsWriter failedstorage = new NGSRecordsWriter("failed.txt");
+    private final NGSRecordsExcWriter failedstorage;
 
     private final MultiBLASTer blaster;
     private final HitsAnalyzer analyser;
     private final Storager storager;
     
 
-    public Processing(Run run, NGSCollectable source) throws DataBaseResponseException, SQLException {
+    public BlastAnalyseStorage(Run run, NGSCollectable source) throws DataBaseResponseException, SQLException {
         this.run = run;
         this.source = source;
         
         DBService.INSTANCE.getStoragedSequences(run, stored);
+        
+        failedstorage = new NGSRecordsExcWriter(run.getTitle());
         
         storager = new Storager(null, failedstorage, 2, 20, run);
         analyser = new HitsAnalyzer(storager, failedstorage, 40, 1e-25);
@@ -58,7 +64,7 @@ public class Processing {
                     try {
                         Thread.sleep(60000);
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(Processing.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(BlastAnalyseStorage.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     System.out.println("Processor\tThreads\tWaiting, ms\tSuccessful\tFailed");
                     blaster.printReport();
