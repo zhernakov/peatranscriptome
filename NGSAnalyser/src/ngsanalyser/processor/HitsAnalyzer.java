@@ -16,7 +16,7 @@ import ngsanalyser.ngsdata.NGSRecord;
 import ngsanalyser.taxonomy.Taxonomy;
 import ngsanalyser.taxonomy.TaxonomyException;
 
-public class HitsAnalyzer extends AbstractProcessor {
+public class HitsAnalyzer extends AbstractSingleProcessor {
     private final double evalue;
 
     public HitsAnalyzer(NGSAddible resultstorage, NGSAddible failedstorage, int threadnumber, double evalue) {
@@ -25,8 +25,8 @@ public class HitsAnalyzer extends AbstractProcessor {
     }
 
     @Override
-    public void addNGSRecord(NGSRecord record) {
-        startNewProcess(new HitsScan(record));
+    protected Process createProcess(NGSRecord record) {
+        return new HitsScan(record);
     }
 
     //////////////////

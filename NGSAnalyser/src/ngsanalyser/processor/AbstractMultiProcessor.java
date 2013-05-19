@@ -17,7 +17,7 @@ public abstract class AbstractMultiProcessor extends AbstractProcessor {
     }
 
     @Override
-    public final void addNGSRecord(NGSRecord record) {
+    public synchronized final void addNGSRecord(NGSRecord record) {
         bunchstorage.add(record);
         if (++inbunch == bunchsize) {
             startNewProcess(createProcess(bunchstorage));
@@ -27,7 +27,7 @@ public abstract class AbstractMultiProcessor extends AbstractProcessor {
     }
 
     @Override
-    public final void terminate() {
+    public synchronized final void terminate() {
         if (inbunch > 0) {
             startNewProcess(createProcess(bunchstorage));
         }
