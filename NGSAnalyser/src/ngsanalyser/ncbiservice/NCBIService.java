@@ -16,7 +16,7 @@ import ngsanalyser.ngsdata.NGSRecord;
 
 public class NCBIService {
     public static final NCBIService INSTANCE = new NCBIService();
-    private static final Timer timer = new Timer(250);
+    private static final Timer timer = new Timer(3000);
     
     private static final String blastlink = "http://www.ncbi.nlm.nih.gov/blast/Blast.cgi";
     private static final String eutilslink = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi";
@@ -55,7 +55,7 @@ public class NCBIService {
                 }
             }
         }
-        throw new NCBIConnectionException();
+        throw new NCBIConnectionException("");
     }
     
     private InputStream sendQuery(String statement) throws NCBIConnectionException {
@@ -78,13 +78,14 @@ public class NCBIService {
     
     private String sendBLASTQuery(Collection<NGSRecord> records) throws BLASTException, NCBIConnectionException {
         final String statement = composeBLASTStatement(records);
-//        System.out.println(statement);
+        System.out.println(statement);
         final InputStream in = sendQuery(statement);
         final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         
         String line;
         try {
             while ((line = reader.readLine()) != null) {
+                System.out.print(line);
                 if (!line.contains("class=\"error\"") && !line.contains("Message ID#")) {
                     if (line.contains("RID = ")) {
                         reader.close();

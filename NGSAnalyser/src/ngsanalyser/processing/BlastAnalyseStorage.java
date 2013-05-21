@@ -37,7 +37,7 @@ public class BlastAnalyseStorage {
         
         storager = new Storager(null, failedstorage, 2, 20, run);
         analyser = new HitsAnalyzer(storager, failedstorage, 40, 1e-25);
-        blaster = new MultiBLASTer(analyser, failedstorage, 50, 20);
+        blaster = new MultiBLASTer(analyser, failedstorage, 5, 5);
     }
 
     public void startProcessing() {
