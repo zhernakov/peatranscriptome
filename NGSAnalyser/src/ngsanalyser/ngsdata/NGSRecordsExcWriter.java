@@ -43,9 +43,7 @@ public class NGSRecordsExcWriter implements NGSAddibleExc {
             fastqwriter.write(record.sequence);
             fastqwriter.write("\r\n+\r\n");
             fastqwriter.write(record.quality);
-            fastqwriter.write("\r\n{");
-            fastqwriter.write(record.getExceptionMessage());
-            fastqwriter.write("}\r\n");
+            fastqwriter.write("\r\n");
             fastqwriter.flush();
         } catch (IOException ex) {
             System.err.println("Can't write failed records to file");
@@ -70,8 +68,13 @@ public class NGSRecordsExcWriter implements NGSAddibleExc {
                 excwriter = new PrintWriter (new File("failed_" + name + "report.txt"));
             }
             excwriter.write("\r\n{");
-            excwriter.write(exc.getMessage());
+            try {
+                excwriter.write(exc.getMessage());
+            } catch (Exception ex) {
+                excwriter.write("unknown");
+            }
             excwriter.write("}\r\n");
+            excwriter.flush();
         } catch (IOException ex) {
             System.err.println("Can't write failed records to file");
         }
